@@ -1,0 +1,34 @@
+type
+
+student{
+str name;
+int marks;
+}
+
+endtype
+
+int main()
+{
+decl
+	student s1;
+	str n;
+	int m,addr;
+enddecl
+
+begin
+
+addr=exposcall("Alloc",3);
+
+
+
+
+s1=(student)addr;
+
+s1.name="John";
+s1.marks=89;
+n=exposcall("Write",-2,s1.name);
+m=exposcall("Write",-2,s1.marks);
+
+return 0;
+end
+}

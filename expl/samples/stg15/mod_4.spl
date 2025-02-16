@@ -1,0 +1,25 @@
+alias fnum R1;
+alias cpid R2;
+
+if (fnum==3)then
+
+multipush(R0,R1);
+
+fnum=8;
+call MOD_0;
+
+multipop(R0,R1);
+print R3;
+
+multipush(R0,R1);
+
+fnum=9;
+call MOD_0;
+
+multipop(R0,R1);
+return;
+
+endif;
+
+R0=-1;
+return;

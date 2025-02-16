@@ -1,0 +1,48 @@
+alias cpid  R7;
+cpid=[SYSTEM_STATUS_TABLE+1];
+
+multipush(BP);
+
+[PROCESS_TABLE + cpid*16 + 12] = SP % 512;
+[PROCESS_TABLE + cpid*16 + 14] = PTBR;
+[PROCESS_TABLE + cpid*16 + 15] = PTLR;
+
+
+alias count R8;
+count =(cpid+1)%16;
+
+
+alias npid R9;
+
+while(count!=cpid)do
+
+if([PROCESS_TABLE + count*16 +4]==CREATED || [PROCESS_TABLE + count*16 +4]==READY ) then
+
+npid=count;
+break;
+
+endif;
+count=(count+1)%16;
+endwhile;
+
+if(count==cpid)then
+npid=0;
+endif;
+
+SP=[PROCESS_TABLE + npid*16 +11]*512 + [PROCESS_TABLE + npid*16 +12];
+PTBR = [PROCESS_TABLE + npid*16 + 14];
+PTLR = [PROCESS_TABLE + npid*16 + 15];
+
+[PROCESS_TABLE + npid * 16 +4] = RUNNING;
+
+if([PROCESS_TABLE + npid * 16 +4 ] == CREATED) then
+  	SP = [PROCESS_TABLE + npid* 16 + 13];
+	[PROCESS_TABLE + npid * 16 +4] = RUNNING;
+	  [PROCESS_TABLE + npid* 16 + 9] = 0;
+  	breakpoint;
+  	ireturn;
+endif;
+[PROCESS_TABLE + npid * 16 +4] = RUNNING;
+
+multipop(BP);
+return; 
