@@ -4,9 +4,9 @@ cpid=[SYSTEM_STATUS_TABLE +1];
 [PROCESS_TABLE + cpid*16 +4]=TERMINATED;
 
 alias count R11;
-count =1;
+count =(cpid+1)%16;
 
-while(count<16)do
+while(count!=cpid)do
 
 if ([PROCESS_TABLE + count*16 +4]!=TERMINATED)then
 
@@ -14,8 +14,7 @@ call SCHEDULER;
 
 endif;
 
-count =(count +1) ;
+count =(count +1) %16;
 
 endwhile;
 
-halt;

@@ -5,10 +5,10 @@ if (fnum==8)then
 
 while([TERMINAL_STATUS_TABLE]==1)do
 [PROCESS_TABLE +cpid*16+4]=WAIT_TERMINAL;
-multipush(R0,R1,R2,R3);
+multipush(R0,R1);
 
 call MOD_5;
-multipop(R0,R1,R2,R3);
+multipop(R0,R1);
 
 endwhile;
 
@@ -46,5 +46,5 @@ endif;
 
 endif;
 
-R0=-1;
+R0=1;
 return;
