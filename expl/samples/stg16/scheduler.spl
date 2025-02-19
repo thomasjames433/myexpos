@@ -1,4 +1,4 @@
-
+breakpoint;
 
 alias cpid R7;
 cpid=[SYSTEM_STATUS_TABLE+1];
