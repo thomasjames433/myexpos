@@ -1,0 +1,135 @@
+alias usersp R0;
+
+usersp=SP;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +13]=SP;
+
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +9]=9;
+
+
+
+alias arg R1;
+arg=[PTBR + (usersp-4)*2/512 +(usersp-4)%512];
+
+alias i R2;
+i=0;
+
+while(i<MAX_FILE_NUM)do
+
+if([INODE_TABLE + i*16 +1]==arg) then
+break;
+endif;
+
+endwhile;
+
+if(i==MAX_FILE_NUM)then
+
+SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +13];
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +9]=0;
+[ [PTBR + (usersp-1)*2/512] *512 +(usersp-1)%512]=-1;
+ireturn;
+
+endif;
+
+
+multipush(R0,R1,R2);
+R1=EXIT_PROCESS;
+R2=[SYSTEM_STATUS_TABLE+1];
+
+call MOD_1;
+
+multipop(R0,R1,R2); 
+
+alias uap  R3;
+
+
+uap=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +11];
+[MEMORY_FREE_LIST+uap]=1;
+[SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]-1;
+
+SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +11];
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +4]=RUNNING;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +7]=i;
+
+[PTBR+0]=63;
+[PTBR+1]="0100";
+[PTBR+2]=64;
+[PTBR+3]="0100";
+
+//HEAP
+
+multipush(R0,R1,R2,R3);
+R1=GET_FREE_PAGE;
+call MOD_2;
+[PTBR+4]=R0;
+[PTBR+5]="0110";
+multipop(R0,R1,R2,R3);
+
+multipush(R0,R1,R2,R3);
+R1=GET_FREE_PAGE;
+call MOD_2;
+[PTBR+6]=R0;
+[PTBR+7]="0110";
+multipop(R0,R1,R2,R3);
+
+//CODE
+alias count R4;
+count=0;
+
+while(count<4)do
+
+if(  [INODE_TABLE+i*16 +8 +count]==-1 )then	
+
+multipush(R0,R1,R2,R3,R4);	
+R1=GET_FREE_PAGE;	
+call MOD_2;	
+[PTBR+8 + count*2]=R0;	
+[PTBR+8 +count*2 +1]="0100";	
+multipop(R0,R1,R2,R3,R4);
+	
+
+else        
+[PTBR+8 + count*2]=-1;        
+[PTBR+8 +count*2 +1]="0000";
+
+
+endif;
+
+count=count+1;
+
+
+endwhile;
+
+//stack        
+multipush(R0,R1,R2,R3,R4);        
+R1=GET_FREE_PAGE;        
+call MOD_2;        
+[PTBR+16]=R0;        
+[PTBR+17]="0110";        
+multipop(R0,R1,R2,R3,R4);        
+
+multipush(R0,R1,R2,R3,R4);        
+R1=GET_FREE_PAGE;
+call MOD_2;
+[PTBR+18]=R0;
+[PTBR+19 ]="0110";
+multipop(R0,R1,R2,R3,R4);
+
+count=0;
+//PTBR = PAGE_TABLE_BASE + 20 ;
+
+while(count < 4) do 
+    if([INODE_TABLE + i*16 + 8 + count*2] != -1) then
+        loadi([PTBR + 8 + count*2], [INODE_TABLE + i*16 + 8 + count]);
+    endif;
+    count = count + 1;
+endwhile;
+
+
+[[PTBR+16]*512] = [[PTBR+8]*512 + 1];
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]* 16 + 9] = 0;
+SP = 8*512;
+ireturn;

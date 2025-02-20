@@ -1,23 +1,26 @@
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +13 ]=SP;
-SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1] * 16 + 11]*512 -1;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 13]=SP;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11] * 512 - 1;
 
 backup;
 
+alias reqpid R0 ;
 
-alias reqpid R5;
-reqpid=[TERMINAL_STATUS_TABLE+1];
-[PROCESS_TABLE + reqpid*16 + 8 ] = P0; 
+reqpid=[TERMINAL_STATUS_TABLE+1] ;
 
-multipush(R0, R1, R2, R3);
+[PROCESS_TABLE + reqpid*16 +8]=P0;
 
+multipush(R0);
 
-R1 = 9;
-R2 = reqpid;
-call MOD_0;
+R1=9;
+R2=reqpid;
+call MOD_4;
+
+multipop(R0);
 
 restore;
 
-SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] ; 
+SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 13];
 
 ireturn;
 
