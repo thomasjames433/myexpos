@@ -63,10 +63,8 @@ R1 = 1;
 call MOD_2 ;
 [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 4] = R0 ; 
 [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 5] = "0110" ;
-multipop(R0,R1,R2,R3);
 
 
-multipush(R0,R1,R2,R3);
 R1= 1;
 call MOD_2;
 [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 6] = R0; 
@@ -88,7 +86,7 @@ if( [ INODE_TABLE + inode*16 + 8 +i] != -1) then
         call MOD_2 ;
 
         [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 8 + i*2] = R0 ;
-        [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 8 + i*2 + 1] = "0110";
+        [PAGE_TABLE_BASE + 20 * [SYSTEM_STATUS_TABLE + 1] + 8 + i*2 + 1] = "0100";
 
     else
 

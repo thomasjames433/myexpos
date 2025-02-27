@@ -25,6 +25,7 @@ i =0;
         if([MEMORY_FREE_LIST + i] != 0) then
             i = i + 1;
         else
+	[MEMORY_FREE_LIST + i]=1;
             R0 = i;
             break;
         endif;
@@ -51,7 +52,6 @@ alias pid R3 ;
 
     endwhile;
 
-//breakpoint;
 return;
 
 endif;
