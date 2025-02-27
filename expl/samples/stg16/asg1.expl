@@ -1,0 +1,41 @@
+decl
+  int a[50], i, j;
+  int n,r;
+enddecl
+
+int main(){
+
+    begin
+      i=0;
+      r = exposcall("Write", -2, "Sorting");
+      r = exposcall("Read", -1, n);
+      breakpoint;
+
+      while(i < n)do
+        r = exposcall("Read", -1, a[i]);
+        i=i+1;
+      endwhile;
+
+      i=0;
+      r=0;
+      while(i < n)do
+        j=i;
+        while(j < n)do
+          if(a[i] > a[j])  then
+            r = a[i];
+            a[i]=a[j];
+            a[j]=r;
+          endif;
+          j=j+1;
+        endwhile;
+        i=i+1;
+      endwhile;
+
+      i=0;
+      while(i < n)do
+        r = exposcall("Write", -2, a[i]);
+        i=i+1;
+      endwhile;
+      return 0;
+    end
+  }

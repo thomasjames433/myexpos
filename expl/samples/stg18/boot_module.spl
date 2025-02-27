@@ -16,6 +16,10 @@ loadi(55,68);
 loadi(4,17);
 loadi(5,18);
 
+//Disk INT
+loadi(6,19); 
+loadi(7,20);
+
 //init
 loadi(65,7);
 loadi(66,8);
@@ -147,6 +151,8 @@ idp=PROCESS_TABLE+16;
 [PROCESS_TABLE + 15*16 + 4] = TERMINATED;
 
 [TERMINAL_STATUS_TABLE+1]=0;
+[DISK_STATUS_TABLE] = 0 ; 
+
 
 return;
 
