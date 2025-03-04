@@ -1,0 +1,21 @@
+int main(){
+
+decl
+ 
+int temp;
+str file;
+
+enddecl
+begin
+
+temp=exposcall("Write",-2,"Filename: ");
+temp=exposcall("Read",-1,file);
+
+temp=exposcall("Exec",file);
+temp = exposcall("Write", -2, "ERROR");
+
+
+return 0;
+
+end
+}
