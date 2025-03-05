@@ -1,7 +1,7 @@
 alias fnum R1;
-alias pageno R2;
 
 if(fnum==1)then
+alias pageno R2;
 
 [SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]+1;
 
@@ -34,7 +34,10 @@ return;
 
 endif;
 
+
+
 if (fnum==2)then
+alias pageno R2;
 
 [MEMORY_FREE_LIST+pageno]=[MEMORY_FREE_LIST+pageno]-1;
 
@@ -52,6 +55,71 @@ alias pid R3 ;
 
     endwhile;
 
+return;
+
+endif;
+
+
+if(fnum==5)then
+
+alias blockno R2;
+alias i R3;
+alias pageno R5;
+i=0;
+
+while(i<16)do
+
+alias j R4;
+j=4;
+
+while(j<8)do
+
+if([DISK_MAP_TABLE + 10*i +j]==blockno)then
+
+pageno=[PAGE_TABLE_BASE+ 20*i + 8 + 2*(j-4)];
+if(pageno!=-1)then
+
+R0=pageno;
+[MEMORY_FREE_LIST + pageno ]=[MEMORY_FREE_LIST + pageno ]+1;
+return;
+endif;
+
+endif;
+
+j=j+1;
+endwhile;
+
+i=i+1;
+endwhile;
+
+     multipush(R1, R2);
+
+    R1 = 1;
+    call MOD_2;
+
+    pageno = R0;
+
+    multipop(R1, R2);	    
+ multipush(R1, R2,R5);
+
+ R1 = 2;
+    R4 = blockno;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R3 = pageno;
+    call MOD_4;
+
+    multipop(R1, R2, R5);
+
+R0=pageno;
+return;
+
+endif;
+
+if(fnum==4)then
+alias blockno R2;
+alias cpid R3;
+
+[DISK_FREE_LIST + blockno] = [DISK_FREE_LIST + blockno] - 1;
 return;
 
 endif;
