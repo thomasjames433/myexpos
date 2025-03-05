@@ -3,7 +3,7 @@
 cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg19/idle.expl
 ./expl  $HOME/myexpos/expl/samples/stg19/init.expl
-./expl  $HOME/myexpos/expl/samples/stg19/odd.expl
+./expl  $HOME/myexpos/expl/samples/stg19/llist.expl
 
 
 cd $HOME/myexpos/spl/
@@ -51,7 +51,7 @@ load --module 4 $HOME/myexpos/expl/samples/stg19/mod_4.xsm
 load --module 1 $HOME/myexpos/expl/samples/stg19/mod_1.xsm
 load --module 2 $HOME/myexpos/expl/samples/stg19/mod_2.xsm
 
-load --exec  $HOME/myexpos/expl/samples/stg19/odd.xsm
+load --exec  $HOME/myexpos/expl/samples/stg19/llist.xsm
 
 exit
 EOF
