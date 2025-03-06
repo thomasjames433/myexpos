@@ -1,0 +1,77 @@
+alias fnum R1;
+alias cpid R2;
+
+
+
+if(fnum==2)then
+
+alias pageno R3;
+alias blockno R4;
+
+multipush(R1,R2,R3,R4);
+R1=3;
+R2=cpid;
+call MOD_0;
+multipop(R1,R2,R3,R4);
+
+[DISK_STATUS_TABLE + 1] = 0;  
+[DISK_STATUS_TABLE + 2] = pageno;
+[DISK_STATUS_TABLE + 3] = blockno;
+
+load(pageno,blockno);
+
+[PROCESS_TABLE + cpid*16 + 4] = WAIT_DISK;
+
+multipush(R1,R2,R3,R4);
+call SCHEDULER;
+multipop(R1,R2,R3,R4);
+
+return;
+
+endif;
+
+if (fnum==4)then
+
+        multipush(R0,R1,R2,R3);
+        fnum=8;
+        call MOD_0;
+
+        multipop(R0,R1,R2,R3);
+        read;
+        [PROCESS_TABLE+ cpid*16 +4]=WAIT_TERMINAL;
+
+        multipush(R0,R1,R2,R3);
+
+        call MOD_5;
+
+        multipop(R0,R1,R2,R3);
+
+        alias word R4;
+        word=[PTBR+ 2*(R3)/512]*512 +(R3)%512;
+        [word]=[PROCESS_TABLE +cpid*16+8];
+
+
+        return;
+
+endif;
+
+
+
+
+if (fnum==3)then
+
+	multipush(R0,R1,R2);
+
+	fnum=8;
+	call MOD_0;
+
+	multipop(R0,R1,R2);
+	print R3;
+endif;
+	multipush(R0,R1,R2);
+
+	fnum=9;
+	call MOD_0;
+
+	multipop(R0,R1,R2);
+	return;
