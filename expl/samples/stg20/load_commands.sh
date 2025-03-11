@@ -50,7 +50,7 @@ load --int=8 $HOME/myexpos/expl/samples/stg20/int_8.xsm
 load --int=console $HOME/myexpos/expl/samples/stg20/console.xsm
 load --library $HOME/myexpos/expl/library.lib
 load --idle $HOME/myexpos/expl/samples/stg20/idle.xsm
-load --init $HOME/myexpos/expl/samples/stg20/asg2.xsm
+load --init $HOME/myexpos/expl/samples/stg20/init.xsm
 
 load --module 4 $HOME/myexpos/expl/samples/stg20/mod_4.xsm
 load --module 1 $HOME/myexpos/expl/samples/stg20/mod_1.xsm
