@@ -1,0 +1,140 @@
+alias fnum R1;
+alias cpid R2;
+
+if (fnum==2)then
+
+alias uap R3;
+uap=[PROCESS_TABLE + cpid*16 +11];
+
+
+multipush(R1,R2,R3);
+R1=2;
+R2=uap;
+call MOD_2;
+
+multipop(R1,R2,R3);
+
+return;
+endif;
+
+
+if(fnum==3)then
+
+
+if([PROCESS_TABLE + cpid*16 +9]!=9)then
+alias i R3;
+i = 0;
+while (i < 16) do
+if ([PROCESS_TABLE + i * 16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + i * 16 + 5]==cpid  ) then
+[PROCESS_TABLE + i * 16 + 4] = READY;
+[PROCESS_TABLE + i * 16 + 5] = -1;
+
+endif;
+if ([PROCESS_TABLE + i * 16 + 2] == cpid) then
+[PROCESS_TABLE + i * 16 + 2] = -1;
+endif;
+i = i + 1;
+endwhile;
+return;
+endif;
+
+
+multipush (R1,R2);
+R1=4;
+R2=cpid;
+
+
+call MOD_1;
+
+
+R1=2;
+R2=cpid;
+
+call MOD_1;
+multipop(R1,R2);
+
+
+
+[PROCESS_TABLE + cpid*16 +4]=TERMINATED;
+
+return;
+endif;
+
+
+if(fnum==4)then
+
+alias ptbr R3;
+
+ptbr = [PROCESS_TABLE + cpid*16 + 14] ;
+
+[ptbr+0]=-1;
+[ptbr+1]="0000";
+[ptbr+2]=-1;
+[ptbr+3]="0000";
+
+alias i R4;
+ i =4;
+    while(i < 20) do
+        if( [ptbr + i] != -1) then
+            multipush(R0,R1,R2,R3,R4);
+            R1 = 2 ;
+            R2 = [ptbr+i] ;
+            call MOD_2 ;
+breakpoint;
+            multipop(R0,R1,R2,R3,R4);
+
+            [ptbr + i] = -1;
+            [ptbr + i + 1] = "0000" ;
+        endif;
+       i = i + 2 ;
+    endwhile;
+return;
+
+i=2;
+while(i<10)do
+
+if([DISK_MAP_TABLE+ cpid*10 +i]!=-1)then
+
+if(i==2 || i==3 || i==8 || i==9)then
+
+multipush(R1, R2, R3, R4);             
+R1 = 4;                
+R3 = cpid;
+R2 = [DISK_MAP_TABLE + cpid * 10 + i];
+call MOD_2;
+multipop(R1, R2, R3, R4);
+
+endif;
+
+[DISK_MAP_TABLE + cpid * 10 + i] = -1;
+endif;
+
+i=i+1;
+endwhile;
+return;
+endif;
+
+
+if(fnum==1)then
+
+alias i R4;
+i = 1;
+while (i < 16) do
+if ([PROCESS_TABLE + i * 16 + 4] == TERMINATED) then
+break;
+endif;
+i = i + 1;
+endwhile;
+if (i == 16) then
+R0 = -1;
+else
+[PROCESS_TABLE + i * 16 + 1] = i;
+[PROCESS_TABLE + i * 16 + 4] = ALLOCATED;
+[PROCESS_TABLE + i * 16 + 14] = PAGE_TABLE_BASE + (20 * i);
+[PROCESS_TABLE + i * 16 + 15] = 10;
+R0 = i;
+endif;
+
+return;
+
+endif;
