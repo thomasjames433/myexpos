@@ -6,6 +6,8 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg21/odd.expl
 ./expl  $HOME/myexpos/expl/samples/stg21/even.expl
 ./expl  $HOME/myexpos/expl/samples/stg21/llist.expl
+./expl  $HOME/myexpos/expl/samples/stg21/fork3.expl
+./expl  $HOME/myexpos/expl/samples/stg21/pid.expl
 
 
 cd $HOME/myexpos/spl/
@@ -62,6 +64,8 @@ load --module 2 $HOME/myexpos/expl/samples/stg21/mod_2.xsm
 load --exec  $HOME/myexpos/expl/samples/stg21/odd.xsm
 load --exec  $HOME/myexpos/expl/samples/stg21/even.xsm
 load --exec  $HOME/myexpos/expl/samples/stg21/llist.xsm
+load --exec  $HOME/myexpos/expl/samples/stg21/fork3.xsm
+load --exec  $HOME/myexpos/expl/samples/stg21/pid.xsm
 
 exit
 EOF
