@@ -56,6 +56,14 @@ loadi(23,36);
 loadi(24,37);
 loadi(25,38);
 
+//int 13
+loadi(28,41);
+loadi(29,42);
+
+//int 14
+loadi(30,43);
+loadi(31,44);
+
 //int 15
 loadi(32,45);
 loadi(33,46);
@@ -154,6 +162,14 @@ i = 1;
 while (i < 9) do
     [([PROCESS_TABLE + 16 + 11] + 1) * 512 - 2 * i] = -1;
     i = i + 1;
+endwhile;
+
+//semaphore table
+i = 0;
+while(i< MAX_SEM_COUNT)do
+    [SEMAPHORE_TABLE + i*4] = -1;
+    [SEMAPHORE_TABLE + i*4 + 1] = 0;
+    i=i+ 1;
 endwhile;
 
 // disk map table initialization

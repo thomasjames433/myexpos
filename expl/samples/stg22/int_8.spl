@@ -19,9 +19,10 @@ if (childpid == -1) then
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
     [[PTBR + 2 * ((usersp - 1)/512)] * 512 + (usersp - 1) % 512] = -1;
     SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
-else
+ireturn;
+endif;
 
-if ([PTBR + 4] == -1) then
+if ([PAGE_TABLE_BASE+ [SYSTEM_STATUS_TABLE+1]*20 + 4] == -1) then
 multipush(R0,R1,  R2);
 R1 = 1;
 call MOD_2;
@@ -29,8 +30,8 @@ call MOD_2;
 [PAGE_TABLE_BASE + 20*childpid + 5] = "0110";
 R1 = 1;
 call MOD_2;
-[PTBR + 6] = R0;
-[PTBR + 7] = "0110";
+[PAGE_TABLE_BASE + 20*childpid + 6] = R0;
+[PAGE_TABLE_BASE + 20*childpid + 7] = "0110";
 multipop(R0,R1, R2);
 endif;
 
@@ -66,10 +67,17 @@ multipop(R0,R1,R2);
 
 
 alias i R4;
-i = 512 - 16;
+//i = 512 - 16;
+//while (i < 512) do
+//[[PROCESS_TABLE + childpid* 16 + 11] * 512 + i] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i];
+//i = i + 1;
+//endwhile;
+
+i = 0;
 while (i < 512) do
-[[PROCESS_TABLE + childpid* 16 + 11] * 512 + i] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i];
-i = i + 1;
+    [[[PROCESS_TABLE + childpid*16 + 14] + 16] * 512 + i] = [[PTBR + 16] * 512 + i];
+    [[[PROCESS_TABLE + childpid*16 + 14] + 18] * 512 + i] = [[PTBR + 18] * 512 + i];
+    i=i+ 1;
 endwhile;
 
 
@@ -92,6 +100,7 @@ endwhile;
 print childpid;
 
 
+
 alias olds R5;
 alias news R6;
 
@@ -111,6 +120,24 @@ alias news R6;
         i = i + 1;
     endwhile;
 
+
+news = [PROCESS_TABLE + childpid*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
+olds = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE  + 1]*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
+
+i = 0;
+while (i < 16) do
+    [news + i] = [olds + i];
+    [news + i + 1] = [olds + i + 1];
+
+    if([olds + i] == SEMAPHORE)then
+        [SEMAPHORE_TABLE + [olds + i + 1]*4 + 1] = [SEMAPHORE_TABLE + [olds + i+ 1]*4 + 1] + 1;
+    endif;
+
+    i=i+ 2;
+endwhile;
+
+
+
 [[PROCESS_TABLE + childpid* 16 + 11] * 512] = BP;
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
@@ -120,6 +147,5 @@ alias news R6;
 
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
 
-endif;
 
 ireturn;

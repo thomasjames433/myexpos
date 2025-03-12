@@ -1,2 +1,0 @@
-disk.spl
-int_11.spl

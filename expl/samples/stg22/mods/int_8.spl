@@ -6,16 +6,18 @@ userSP = SP;
 [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11]* 512 - 1;
 
+multipush(R10);
 R1 = GET_PCB_ENTRY;
 call MOD_1;
+multipop(R10);
 
 alias childID R5;
 R5 = R0;
 
 if(childID == -1)then
     [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+    [[PTBR + (userSP - 1) * 2/512]*512 + (userSP - 1) % 512] = -1;
     SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
-    [[PTBR + (SP - 1) * 2/512]*512 + (SP - 1) % 512] = -1;
     ireturn;
 endif;
 
@@ -25,7 +27,7 @@ childPTBR = [PROCESS_TABLE + childID*16 + 14];
 //HEAP ALLOCATION
 
 if([PTBR + 4] == -1)then
-    multipush(R5);
+    multipush(R5, R9, R10);
 
     R1 = GET_FREE_PAGE;
     call MOD_2;
@@ -37,28 +39,32 @@ if([PTBR + 4] == -1)then
     [PTBR + 6] = R0;
     [PTBR + 7] = "0110";
     
-    multipop(R5);
+    multipop(R5, R9, R10);
 endif;
 
 //STACK ALLOCATION
 
-multipush(R5);
+multipush(R5, R9, R10);
 R1 = GET_FREE_PAGE;
 call MOD_2;
+multipop(R5, R9, R10);
+
 [childPTBR + 16] = R0;
 [childPTBR + 17] = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 17];
 
+multipush(R5, R9, R10);
 R1 = GET_FREE_PAGE;
 call MOD_2;
+multipop(R5, R9, R10);
+
 [childPTBR + 18] = R0;
 [childPTBR + 19] = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 19];
 
 //USER AREA PAGE
-
+multipush(R5, R9, R10);
 R1 = GET_FREE_PAGE;
 call MOD_2;
-
-multipop(R5);
+multipop(R5, R9, R10);
  
 //SETTING UP THE PROCESS TABLE
 
@@ -84,7 +90,7 @@ while (counter < 10) do
     counter = counter + 1;
 endwhile;
 
-// page table entries
+// page table entries && SETTIGN UP THE PER PROCESS RESOUCE TABLE
 counter = 0;
 while (counter < 16) do
     [childPTBR + counter] = [PTBR + counter];
@@ -92,6 +98,23 @@ while (counter < 16) do
         [MEMORY_FREE_LIST + [childPTBR + counter]] = [MEMORY_FREE_LIST + [childPTBR + counter]] + 1;
     endif;
     counter = counter + 1;
+endwhile;
+
+alias newResourceTable R7;
+alias oldResourceTable R8;
+R7 = [PROCESS_TABLE + childID*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
+R8 = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE  + 1]*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
+
+counter = 0;
+while (counter < 16) do
+    [newResourceTable + counter] = [oldResourceTable + counter];
+    [newResourceTable + counter + 1] = [oldResourceTable + counter + 1];
+
+    if([oldResourceTable + counter] == SEMAPHORE)then
+        [SEMAPHORE_TABLE + [oldResourceTable + counter + 1]*4 + 1] = [SEMAPHORE_TABLE + [oldResourceTable + counter + 1]*4 + 1] + 1;
+    endif;
+
+    counter = counter + 2;
 endwhile;
 
 counter = 0;

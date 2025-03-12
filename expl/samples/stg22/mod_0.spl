@@ -23,6 +23,55 @@ return;
 endif;
 
 
+if(fnum==6)then
+
+alias i R0;
+i=0;
+
+while(i<MAX_SEM_COUNT)do
+
+if([SEMAPHORE_TABLE +i*4 +1]==0)then
+[SEMAPHORE_TABLE +i*4 +1]=1;
+[SEMAPHORE_TABLE +i*4]=-1;
+return;
+endif;
+
+
+i=i+1;
+endwhile;
+
+i=-1;
+return;
+
+endif;
+
+
+
+if(fnum==7)then
+
+alias semid R3;
+
+if([SEMAPHORE_TABLE +semid*4]==cpid)then
+[SEMAPHORE_TABLE +semid*4]=-1;
+
+alias i R4;
+i=0;
+while(i<16)do
+
+if([PROCESS_TABLE + i*16 +4]==WAIT_SEMAPHORE && [PROCESS_TABLE + i*16 +5]==semid)then
+[PROCESS_TABLE + i*16 +4]=READY;
+endif;
+
+i=i+1;
+endwhile;
+
+[SEMAPHORE_TABLE +semid*4+1]=[SEMAPHORE_TABLE +semid*4+1]-1;
+
+endif;
+return;
+
+endif;
+
 if (fnum==8)then
 
 while([TERMINAL_STATUS_TABLE]==1)do

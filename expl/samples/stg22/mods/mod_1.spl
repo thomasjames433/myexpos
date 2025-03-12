@@ -1,18 +1,41 @@
 alias funNo R1;
 alias currPID R2;
 if(funNo == FREE_USER_AREA_PAGE)then
-    //print "UPTR";
+
     alias userpage R6;
     userpage = [PROCESS_TABLE + currPID*16 + 11];
-    multipush(R1, R2, R6);
+
+
+    alias resourceTable R7;
+    alias counter R8;
+    counter = 0;
+    resourceTable = userpage*512 + RESOURCE_TABLE_OFFSET;
+
+    while(counter < 16)do
+        if([resourceTable + counter] == SEMAPHORE)then
+            multipush(R1, R2, R6, R7, R8);
+
+            R1 = RELEASE_SEMAPHORE;
+            R3 = [resourceTable + counter + 1];
+            call MOD_0;
+            
+            multipop(R1, R2, R6, R7, R8);
+        endif;
+        counter = counter + 2;
+    endwhile;
+    
+
+    multipush(R1, R2, R6, R7);
+
     R2 = userpage;
     R1 = RELEASE_PAGE;
     call MOD_2;
-    multipop(R1, R2, R6);
+
+    multipop(R1, R2, R6, R7);
     return;
+
 endif;
 if(funNo == EXIT_PROCESS) then
-    //print "exit pro";
     multipush(R1, R2);
 
     //freeing the pagetable entries.
@@ -55,6 +78,7 @@ if(funNo == FREE_PAGE_TABLE)then
     alias auxilary R8;
     page = 4;
     auxilary = 5;
+
     while(page < 20)do
          if([PAGE_TABLE_BASE + 20*currPID + page]!=-1)then
             //releasing the page
@@ -70,8 +94,8 @@ if(funNo == FREE_PAGE_TABLE)then
         endif;
         page = page + 2;
         auxilary = auxilary + 2;
-
     endwhile;
+
     alias counter R6;
     counter = 2;
     while(counter<10)do
@@ -83,14 +107,15 @@ if(funNo == FREE_PAGE_TABLE)then
             multipop(R1, R2, R3, R4, R5, R6);
         endif;
         counter = counter + 1;
-
     endwhile;
+
     //invalidate all entries of disk map table.
     counter = 0;
     while(counter<10)do
         [DISK_MAP_TABLE + counter] = -1;
         counter = counter + 1;
     endwhile;
+
     return;
 endif;
 
