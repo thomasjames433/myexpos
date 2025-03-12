@@ -9,6 +9,10 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg22/fork3.expl
 ./expl  $HOME/myexpos/expl/samples/stg22/pid.expl
 ./expl  $HOME/myexpos/expl/samples/stg22/asg1.expl
+./expl  $HOME/myexpos/expl/samples/stg22/parent.expl
+./expl  $HOME/myexpos/expl/samples/stg22/child.expl
+./expl  $HOME/myexpos/expl/samples/stg22/mergeseq.expl
+./expl  $HOME/myexpos/expl/samples/stg22/mergecon.expl
 
 
 cd $HOME/myexpos/spl/
@@ -71,6 +75,10 @@ load --exec  $HOME/myexpos/expl/samples/stg22/llist.xsm
 load --exec  $HOME/myexpos/expl/samples/stg22/fork3.xsm
 load --exec  $HOME/myexpos/expl/samples/stg22/pid.xsm
 load --exec  $HOME/myexpos/expl/samples/stg22/asg1.xsm
+load --exec  $HOME/myexpos/expl/samples/stg22/parent.xsm
+load --exec  $HOME/myexpos/expl/samples/stg22/child.xsm
+load --exec  $HOME/myexpos/expl/samples/stg22/mergeseq.xsm
+load --exec  $HOME/myexpos/expl/samples/stg22/mergecon.xsm
 
 exit
 EOF
