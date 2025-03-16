@@ -40,7 +40,7 @@ cd $HOME/myexpos/spl/
 ./spl  $HOME/myexpos/expl/samples/stg23/int_13.spl
 ./spl  $HOME/myexpos/expl/samples/stg23/int_14.spl
 ./spl  $HOME/myexpos/expl/samples/stg23/int_15.spl
-./spl  $HOME/myexpos/expl/samples/stg23/mods/int_4.spl
+./spl  $HOME/myexpos/expl/samples/stg23/int_4.spl
 
 cd $HOME/myexpos/xfs-interface/
 ./xfs-interface <<EOF
@@ -62,7 +62,7 @@ load --int=11 $HOME/myexpos/expl/samples/stg23/int_11.xsm
 load --int=15 $HOME/myexpos/expl/samples/stg23/int_15.xsm
 load --int=13 $HOME/myexpos/expl/samples/stg23/int_13.xsm
 load --int=14 $HOME/myexpos/expl/samples/stg23/int_14.xsm
-load --int=4 $HOME/myexpos/expl/samples/stg23/mods/int_4.xsm
+load --int=4 $HOME/myexpos/expl/samples/stg23/int_4.xsm
 
 
 load --int=console $HOME/myexpos/expl/samples/stg23/console.xsm
