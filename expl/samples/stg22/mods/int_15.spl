@@ -1,0 +1,9 @@
+print "conext switch";
+print [SYSTEM_STATUS_TABLE +25];
+
+print "memory";
+print [SYSTEM_STATUS_TABLE +26];
+
+print "disk";
+print [SYSTEM_STATUS_TABLE +27];
+halt;
