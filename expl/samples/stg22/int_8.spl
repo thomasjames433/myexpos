@@ -3,6 +3,9 @@
 alias usersp R0;
 usersp = SP;
 
+alias childpid R2;
+
+
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
 
@@ -10,7 +13,6 @@ multipush(R0);
 R1=1;
 call MOD_1;
 
-alias childpid R2;
 childpid=R0;
 multipop(R0);
 
@@ -22,28 +24,31 @@ if (childpid == -1) then
 ireturn;
 endif;
 
-if ([PAGE_TABLE_BASE+ [SYSTEM_STATUS_TABLE+1]*20 + 4] == -1) then
+alias childPTBR R9;
+childPTBR = [PROCESS_TABLE + childpid*16 + 14];
+
+if ([PTBR + 4] == -1) then
 multipush(R0,R1,  R2);
 R1 = 1;
 call MOD_2;
-[PAGE_TABLE_BASE + 20*childpid + 4] = R0;
-[PAGE_TABLE_BASE + 20*childpid + 5] = "0110";
+[PTBR + 4] = R0;
+[PTBR + 5] = "0110";
 R1 = 1;
 call MOD_2;
-[PAGE_TABLE_BASE + 20*childpid + 6] = R0;
-[PAGE_TABLE_BASE + 20*childpid + 7] = "0110";
+[PTBR + 6] = R0;
+[PTBR + 7] = "0110";
 multipop(R0,R1, R2);
 endif;
 
 multipush(R0,R1,R2);
 R1 = 1;
 call MOD_2;
-[PAGE_TABLE_BASE + 20*childpid + 16] = R0;
-[PAGE_TABLE_BASE + 20*childpid + 17] = "0110";
+[childPTBR+ 16] = R0;
+[childPTBR+ 17] = [PTBR+17];
 R1 = 1;
 call MOD_2;
-[PAGE_TABLE_BASE + 20*childpid + 18] = R0;
-[PAGE_TABLE_BASE + 20*childpid + 19] = "0110";
+[childPTBR+ 18] = R0;
+[childPTBR+ 19] = [PTBR+19];
 
 R1 = 1;
 call MOD_2;
@@ -67,16 +72,11 @@ multipop(R0,R1,R2);
 
 
 alias i R4;
-//i = 512 - 16;
-//while (i < 512) do
-//[[PROCESS_TABLE + childpid* 16 + 11] * 512 + i] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i];
-//i = i + 1;
-//endwhile;
-
 i = 0;
-while (i < 512) do
-    [[[PROCESS_TABLE + childpid*16 + 14] + 16] * 512 + i] = [[PTBR + 16] * 512 + i];
-    [[[PROCESS_TABLE + childpid*16 + 14] + 18] * 512 + i] = [[PTBR + 18] * 512 + i];
+
+while (i < 512) do	
+    [[childPTBR + 16] * 512 + i] = [[PTBR + 16] * 512 + i];
+    [[childPTBR + 18] * 512 + i] = [[PTBR + 18] * 512 + i];
     i=i+ 1;
 endwhile;
 
@@ -89,10 +89,10 @@ endwhile;
 
 i = 0;
 while (i < 16) do
-[PAGE_TABLE_BASE + 20*childpid + i] = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE+1] + i];
-[PAGE_TABLE_BASE + 20*childpid  + i + 1] = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE+1] + i + 1];
-if ([PAGE_TABLE_BASE + 20*childpid  + i] != -1) then
-[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*childpid  + i]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*childpid  + i]] + 1;
+[childPTBR+ i] = [PTBR + i];
+[childPTBR + i + 1] = [PTBR + i + 1];
+if ([childPTBR + i] != -1) then
+[MEMORY_FREE_LIST + [childPTBR + i]] = [MEMORY_FREE_LIST + [childPTBR + i]] + 1;
 endif;
 i = i + 2;
 endwhile;
@@ -103,23 +103,6 @@ print childpid;
 
 alias olds R5;
 alias news R6;
-
-    news = [PAGE_TABLE_BASE + 20*childpid + 16];
-    olds = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE+1] + 16];
-    i = 0;
-    while (i < 512) do
-        [news * 512 + i] = [olds * 512 + i];
-        i = i + 1;
-    endwhile;
-
-    news = [PAGE_TABLE_BASE + 20*childpid + 18];
-    olds = [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE+1] + 18];
-    i = 0;
-    while (i < 512) do
-        [news * 512 + i] = [olds * 512 + i];
-        i = i + 1;
-    endwhile;
-
 
 news = [PROCESS_TABLE + childpid*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
 olds = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE  + 1]*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
@@ -142,8 +125,8 @@ endwhile;
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
     
-[[PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE+1] + 2 * ((usersp - 1) / 512)] * 512 + (usersp - 1) % 512] =  childpid;
-[[PAGE_TABLE_BASE + 20*childpid + 2 * ((usersp - 1) / 512)] * 512 + (usersp - 1) % 512] = 0;
+[[PTBR + 2 * ((usersp - 1) / 512)] * 512 + (usersp - 1) % 512] =  childpid;
+[[childPTBR+ 2 * ((usersp - 1) / 512)] * 512 + (usersp - 1) % 512] = 0;
 
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
 
