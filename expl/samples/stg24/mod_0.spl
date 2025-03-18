@@ -2,6 +2,51 @@ alias fnum R1;
 alias cpid R2;
 
 
+if(fnum==1)then //0
+
+alias buffNum R3;
+while([BUFFER_TABLE + buffNum*4 + 2] != -1)do
+
+[PROCESS_TABLE + cpid*16 + 4] = WAIT_BUFFER;
+[PROCESS_TABLE + cpid*16 + 5] = buffNum;
+
+multipush(R1, R2, R3);
+call MOD_5;
+multipop(R1, R2, R3);
+endwhile;
+
+[BUFFER_TABLE + buffNum*4 + 2] = cpid;
+
+return;
+
+endif; //0
+
+
+if(fnum==2)then //0
+
+alias buffNum R3;
+
+if(cpid != [BUFFER_TABLE + buffNum*4 + 2])then
+R0 = -1;
+return;
+endif;
+
+[BUFFER_TABLE + buffNum*4 + 2] = -1;
+
+alias counter R5;
+counter = 0;
+while(counter<16)do
+if([PROCESS_TABLE + counter*16 + 4] == WAIT_BUFFER && [PROCESS_TABLE + counter*16 + 5] == buffNum)then
+[PROCESS_TABLE + counter*16 + 4] = READY;
+endif;
+counter = counter + 1;
+endwhile;
+
+R0 = 0;
+return;
+endif; //0
+
+
 if (fnum==3)then
 
 while([DISK_STATUS_TABLE]==1)do

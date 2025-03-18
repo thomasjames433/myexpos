@@ -36,6 +36,9 @@ loadi(9,22);
 loadi(10,23);
 loadi(11,24);
 
+//int 5
+loadi(12,25);
+loadi(13,26);
 
 //int 6
 loadi(14,27);
@@ -85,6 +88,10 @@ loadi(43,56);
 //module 2 memory manager
 loadi(44,57);
 loadi(45,58);
+
+//module 3 file manager
+loadi(46,59);
+loadi(47,60);
 
 //module 4 device manager
 loadi(48,61);
@@ -197,6 +204,12 @@ while(i < 4)do
 i = i + 1;
 endwhile;
 
+i = 0;
+while(i < 32)do
+    [OPEN_FILE_TABLE + i*4 + 0] = -1;
+    [OPEN_FILE_TABLE + i*4 + 1] = 0;
+    i = i + 1;
+endwhile;
 
 // disk map table initialization
 

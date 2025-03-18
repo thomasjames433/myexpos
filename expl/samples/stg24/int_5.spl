@@ -1,11 +1,11 @@
 alias syscallno R1;
-alias usersp R0;
+alias usersp R10;
 usersp=SP;
 
 syscallno=[[PTBR + 2*(usersp-5)/512]*512 + (usersp-5)%512];
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 13]=SP;
-SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 11]*512-1;
+SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 11]*512 -1;
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 9]=syscallno;
 
@@ -27,25 +27,26 @@ processTableEntry = processTableEntry + 1;
 endwhile;
 
 if(processTableEntry==8)then  //1
-[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -3;
-
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -3;
 else
 
-multipush(R0,R1,R2,R3);
+multipush(R1,R2,R3,R10);
 R1=3;
 R2 = [[PTBR + 2*(usersp - 4)/512] * 512 + (usersp - 4)%512];
 call MOD_3;
+multipop(R1,R2,R3,R10);
 
 if(R0<0 )then //2
-[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = R0;
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = R0;
 
 else
 [processTable + processTableEntry*2] = FILE;
 [processTable + processTableEntry*2 + 1] = R0;
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = R0;
-multipop(R0,R1,R2,R3);
 
 endif; //2
+
+
 endif; //1
 endif; //0
 
@@ -56,7 +57,7 @@ alias fileDesc R2;
 fileDesc= [[PTBR + 2*(usersp - 4)/512] * 512 + (usersp - 4)%512];
 
 if(fileDesc<0 || fileDesc>7)then //4
-[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
 
 else
 
@@ -65,7 +66,7 @@ pprt=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + RESOURCE_TABLE_OF
 
 
 if([pprt + fileDesc*2] !=FILE)then //5
-[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
 
 else
 
@@ -77,7 +78,7 @@ call MOD_3;
 multipop(R0,R1,R2, R3);
 
 [pprt + fileDesc*2]=-1;
-[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = 0;
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = 0;
  
 
 endif; //5

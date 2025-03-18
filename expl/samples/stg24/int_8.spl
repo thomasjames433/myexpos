@@ -116,6 +116,11 @@ while (i < 16) do
         [SEMAPHORE_TABLE + [olds + i + 1]*4 + 1] = [SEMAPHORE_TABLE + [olds + i+ 1]*4 + 1] + 1;
     endif;
 
+    if([olds + i] == FILE)then
+        [OPEN_FILE_TABLE + [olds + i + 1]*4 + 1] = [OPEN_FILE_TABLE + [olds + i+ 1]*4 + 1] + 1;
+    endif;
+
+
     i=i+ 2;
 endwhile;
 
