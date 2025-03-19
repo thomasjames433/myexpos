@@ -97,7 +97,7 @@ if(fileDesc<0 || fileDesc>7)then //1
 else
 
 alias pprt R3;
-pprt=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 +11]*512 + RESOURCE_OFFSET + fileDesc*2;
+pprt=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 +11]*512 + RESOURCE_TABLE_OFFSET + fileDesc*2;
 
 
 if([pprt] !=FILE)then //2
@@ -132,7 +132,7 @@ fileSize = 480;
 endif;
 
 alias offSet R8;
-offSet = [[PTBR + 2*(userSP - 3)/512]*512 + (userSP - 3)%512];
+offSet = [[PTBR + 2*(usersp - 3)/512]*512 + (usersp - 3)%512];
 
 if([lSeek] + offSet<0)then
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -2;

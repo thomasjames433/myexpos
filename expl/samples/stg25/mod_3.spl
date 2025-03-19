@@ -42,7 +42,7 @@ multipop(R1,R2,R3,R4,R5);
 
 endif; //1
 
-if(fnum==2) //99
+if(fnum==2)then //99
 alias memAdd R4;
 [memAdd]=[(71 + buffNum)*512 +offset];
 

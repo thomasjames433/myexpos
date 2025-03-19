@@ -113,7 +113,7 @@ R3 = inodeIndex;
 call MOD_0;
 multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
 
-[returnAdd] = 0;	
+[retAdd] = 0;	
 
 endif; //7		
 endif; //6
