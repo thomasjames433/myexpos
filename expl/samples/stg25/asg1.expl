@@ -1,0 +1,26 @@
+int main(){
+    decl
+        string fileName, data;
+        int temp, discriptor;
+    enddecl
+    begin
+        write("Filename: ");
+        read(fileName);
+        discriptor = exposcall("Open", fileName);
+        if(discriptor<0)then
+            write(discriptor);
+            break;
+        else
+            while(1==1)do
+                temp = exposcall("Read", discriptor, data);
+                if(temp == -2)then
+                    write("EOF");
+                    break;
+                endif;
+            
+                write(data);
+            endwhile;
+        endif;
+        return 0;
+    end
+}

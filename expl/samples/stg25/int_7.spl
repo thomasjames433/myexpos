@@ -1,0 +1,151 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
+
+alias usersp R0;
+usersp = SP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13] = SP;
+SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 - 1;
+
+
+
+alias fileDesc R2;
+fileDesc=[[PTBR + 2 * ((usersp - 4)/ 512)]*512+(usersp-4)% 512];
+
+alias word R3;
+word = [ [PTBR + 2 * ((usersp - 3) / 512)] * 512 + (usersp - 3) % 512 ];
+
+alias retAdd R4;
+retAdd = ([PTBR + 2 *((usersp-1)/512)]*512) + ((usersp-1) % 512);
+
+
+
+if(fileDesc != -2 )then //0
+
+if(fileDesc<0 || fileDesc>7)then //1
+[retAdd]=-1;
+else
+
+alias rtEntry R5;
+rtEntry = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + RESOURCE_TABLE_OFFSET + fileDesc*2;
+
+if([rtEntry] != FILE)then //2
+[retAdd] = -1;
+
+else
+
+alias oft R6;
+oft = [rtEntry + 1];
+
+alias inodeIndex R7;
+inodeIndex = [OPEN_FILE_TABLE + oft*4];
+	
+if([INODE_TABLE + inodeIndex*16 + 4] == EXCLUSIVE && [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 3] != [INODE_TABLE + inodeIndex*16 + 3] && [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 3] != 1)then //3
+[retAdd] = -3;
+
+else
+
+multipush(R0,R1, R2, R3, R4, R5, R6, R7);
+R1 = ACQUIRE_INODE;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = inodeIndex;
+call MOD_0;
+R10=R0;
+multipop(R0,R1, R2, R3, R4, R5, R6, R7);
+
+if(R10 == -1)then //4
+[retAdd] = -1;
+
+else
+
+alias lSeek R8;
+lSeek = OPEN_FILE_TABLE + oft*4 + 2;
+
+if([lSeek] == MAX_FILE_SIZE)then //5
+multipush(R0 ,R1, R2, R3, R4, R5, R6, R7,  R8);
+R1 = RELEASE_INODE;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = inodeIndex;
+call MOD_0;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+[retAdd] = -2;
+
+else
+
+if([lSeek]%512 == 0 && [lSeek] == [INODE_TABLE + inodeIndex*16 + 2])then  //6
+	
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+R1 = GET_FREE_BLOCK;
+call MOD_2;
+R10=R0;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+
+if(R10 == -1)then //7
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+R1 = RELEASE_INODE;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = inodeIndex;
+call MOD_0;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+[retAdd] = -2;
+
+else
+[INODE_TABLE + inodeIndex*16 + 8 + [lSeek]/512] = R10;
+
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+R1 = BUFFERED_WRITE;
+R2 = [INODE_TABLE + inodeIndex*16 + 8 + [lSeek]/512];
+R4 = word;
+R3 = [lSeek]%512;
+call MOD_3;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+
+if([lSeek] == [INODE_TABLE +inodeIndex*16 + 2])then
+[INODE_TABLE + inodeIndex*16 + 2] = [INODE_TABLE + inodeIndex*16 + 2] + 1;
+[ROOT_FILE + inodeIndex*8 + 1] = [ROOT_FILE + inodeIndex*8 + 1] + 1;
+endif;
+
+[lSeek] = [lSeek] + 1;
+
+
+multipush(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+R1 = RELEASE_INODE;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R3 = inodeIndex;
+call MOD_0;
+multipop(R0, R1, R2, R3, R4, R5, R6, R7, R8);
+
+[returnAdd] = 0;	
+
+endif; //7		
+endif; //6
+
+endif;//5
+
+
+endif; //4
+
+endif; //3
+
+endif; //2
+
+
+
+endif; //1
+
+else
+
+
+multipush(R0,R1,R2,R3);
+R1=3;
+R2=[SYSTEM_STATUS_TABLE+1];
+R3=word;
+call MOD_4;
+multipop(R0,R1,R2,R3);
+
+[retAdd] = 0;
+
+endif;//0
+
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;
+ireturn;
