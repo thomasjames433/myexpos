@@ -1,0 +1,50 @@
+int main(){
+
+decl
+
+int fileDesc,i,temp;
+str word;
+enddecl
+
+begin 
+
+fileDesc=exposcall("Open" ,"root");
+
+if(fileDesc==-1)then
+write("File not found");
+endif;
+
+if(fileDesc==-2)then
+write("Open file limit reached");
+endif;
+
+if(fileDesc==-3)then
+write("Resource limit reached");
+endif;
+
+if(fileDesc >=0)then
+
+i=0;
+while(i<60)do
+
+temp=exposcall("Read",fileDesc,word);
+if(word!="-1")then
+write(word);
+endif;
+
+temp=exposcall("Seek",fileDesc,7);
+i=i+1;
+
+endwhile;
+
+temp=exposcall("Close",fileDesc);
+
+
+endif;
+
+return 0;
+
+
+end
+
+}

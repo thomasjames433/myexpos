@@ -1,26 +1,51 @@
 int main(){
     decl
-        string fileName, data;
-        int temp, discriptor;
+        int temp, fileDesc, a, i, permission;
+        str word, fileName;
     enddecl
     begin
-        write("Filename: ");
-        read(fileName);
-        discriptor = exposcall("Open", fileName);
-        if(discriptor<0)then
-            write(discriptor);
-            break;
+    
+        temp = exposcall("Write", -2, "Enter name: ");
+        temp = exposcall("Read", -1, fileName);
+        temp = exposcall("Write", -2, "permission: ");
+        temp = exposcall("Read", -1, permission);
+        temp = exposcall("Create", fileName, permission);
+
+        fileDesc = exposcall("Open", fileName);
+        if(fileDesc == -1) then
+            temp = exposcall("Write", -2, "File not found");
         else
-            while(1==1)do
-                temp = exposcall("Read", discriptor, data);
-                if(temp == -2)then
-                    write("EOF");
+            if(fileDesc == -2) then
+                temp = exposcall("Write", -2, "System max file opened");
+            else
+                if(fileDesc == -3) then
+                    temp = exposcall("Write", -2, "Proc max file opened");
+                endif;
+            endif;
+        endif;
+
+        if(fileDesc >= 0) then
+            i = 1;
+            while(i <= 10) do
+                temp = exposcall("Write", fileDesc, i);
+                i = i + 1;
+            endwhile;
+            while(a != -2) do
+                a = exposcall("Seek", fileDesc, -1);
+                if(a == -2) then
                     break;
                 endif;
-            
-                write(data);
+                temp = exposcall("Read", fileDesc, word);
+                if(temp == -2) then
+                    temp = exposcall("Write", -2, "EOF");
+                    break;
+                endif;
+                temp = exposcall("Write", -2, word);
+                a = exposcall("Seek", fileDesc, -1);
             endwhile;
         endif;
+        temp = exposcall("Close", fileDesc);
+
         return 0;
     end
 }

@@ -17,6 +17,8 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg25/asg1.expl
 ./expl  $HOME/myexpos/expl/samples/stg25/asg2.expl
 
+./expl  $HOME/myexpos/expl/samples/stg25/ls.expl
+
 
 cd $HOME/myexpos/spl/
 ./spl  $HOME/myexpos/expl/samples/stg25/boot_module.spl
@@ -94,6 +96,9 @@ load --exec  $HOME/myexpos/expl/samples/stg25/create.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/delete.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/asg1.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/asg2.xsm
+
+
+load --exec  $HOME/myexpos/expl/samples/stg25/ls.xsm
 
 load --data  $HOME/myexpos/expl/samples/stg25/numbers.dat
 

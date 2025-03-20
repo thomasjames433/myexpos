@@ -8,8 +8,8 @@ SP=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE +1]*16 + 11]*512-1;
 
 
 
-if([SYSTEM_STATUS_TABLE + 1] != 2 || [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 3] != 1)then
-[[PAGE_TABLE_BASE+ [SYSTEM_STATUS_TABLE]*20 + 2 * (usersp - 1) / 512] * 512 + (usersp - 1) % 512] = -1;
+if([SYSTEM_STATUS_TABLE + 1] != 1 || [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 3] != 1)then
+[[PAGE_TABLE_BASE+ [SYSTEM_STATUS_TABLE+1]*20 + 2 * (usersp - 1) / 512] * 512 + (usersp - 1) % 512] = -1;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 9] = 0;    
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 13];
 ireturn;
@@ -22,21 +22,22 @@ R2=[SYSTEM_STATUS_TABLE+1];
 call MOD_1;
 multipop(R0);
 
+breakpoint;
 
 alias i R1;
 i=0;
 
+
 while(i<4)do
 
-if([BUFFER_TABLE + i*4 +1==1])then
+if(  [BUFFER_TABLE + i*4 +1]   ==1)then
 
 
 multipush(R0, R1);
-R1 = DISK_STORE;
-R2 = [SYSTEM_STATUS_TABLE + 1];
-R3 = BUFFER_BASE + i;
 R4 = [BUFFER_TABLE + i*4];
-
+R3 = BUFFER_BASE + i;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+R1 = DISK_STORE;
 call MOD_4;
 multipop(R0, R1);
 
@@ -44,13 +45,17 @@ endif;
 i=i+1;
 endwhile;
 
+
+
 //INODE TABLE
-multipush(R1, R2, R3, R4);
+multipush(R0, R1);
 R1 = DISK_STORE;
 R2 = [SYSTEM_STATUS_TABLE + 1];
 R3 = 59;
 R4 = 3;
 call MOD_4;
+
+breakpoint;
 
 R1 = DISK_STORE;
 R2 = [SYSTEM_STATUS_TABLE + 1];
@@ -72,7 +77,7 @@ R3 = 61;
 R4 = 2;
 call MOD_4;
 
-multipop(R1, R2, R3, R4);
+multipop(R0,R1);
 
 
 halt;
