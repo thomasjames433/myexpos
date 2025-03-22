@@ -1,0 +1,156 @@
+alias userSP R0;
+userSP = SP;
+
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11]* 512 - 1;
+
+alias sysNum R1;
+alias returnAdd R2;
+alias userName R3;
+
+sysNum = [[PTBR + 2*(userSP - 5)/512] * 512 + (userSP - 5)%512];
+userName = [[PTBR + 2*(userSP - 4)/512]*512 + (userSP - 4)%512];
+returnAdd = [PTBR + 2*(userSP - 1)/512]*512 + (userSP - 1)%512;
+
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 9] = sysNum;
+    
+if(sysNum == INT_NEWUSR)then
+
+    alias passWord R4;
+    passWord = [[PTBR + 2*(userSP - 3)/512]*512 + (userSP - 3)%512];
+
+    if([SYSTEM_STATUS_TABLE] != 1 || [SYSTEM_STATUS_TABLE + 1] != 2)then
+        [returnAdd] = -2;
+        goto exit;
+    endif;
+
+    alias userTableEntry R5;
+    userTableEntry = 0;
+    while(userTableEntry < MAX_USER_NUM)do
+        if([USER_TABLE + 2*userTableEntry] == userName)then
+            [returnAdd] = -1;
+            goto exit;
+        endif;
+        userTableEntry = userTableEntry + 1;
+    endwhile;
+
+    userTableEntry = 0;
+    while(userTableEntry <MAX_USER_NUM && [USER_TABLE + 2*userTableEntry] != -1)do
+        userTableEntry = userTableEntry + 1;
+    endwhile;
+
+    if(userTableEntry == MAX_USER_NUM)then
+        [returnAdd] = -3;
+        goto exit;
+    endif;
+
+    encrypt passWord;
+
+    [USER_TABLE + 2*userTableEntry] = userName;
+    [USER_TABLE + 2*userTableEntry + 1] = passWord;
+
+    [returnAdd] = 0;
+endif;
+
+if(sysNum == INT_REMUSR)then
+    
+    if([SYSTEM_STATUS_TABLE] != 1 || [SYSTEM_STATUS_TABLE + 1] != 2 || userName == "root" || userName == "kernal")then
+        [returnAdd] = -2;
+        goto exit;
+    endif;
+
+    alias userTableEntry R4;
+    userTableEntry = 0;
+    while(userTableEntry <MAX_USER_NUM && [USER_TABLE + 2*userTableEntry] != userName)do
+        userTableEntry = userTableEntry + 1;
+    endwhile;   
+
+    if(userTableEntry == MAX_USER_NUM)then
+        [returnAdd] = -1;
+        goto exit;
+    endif;  
+
+    alias userFiles R5;
+    userFiles = 0;
+    while(userFiles < MAX_FILE_NUM)do
+        if([ROOT_FILE + 8*userFiles + 3] == userName)then
+            [returnAdd] = -3;
+            goto exit;
+        endif;
+        userFiles = userFiles + 1;
+    endwhile;
+
+    [USER_TABLE + 2*userTableEntry] = -1;
+    [USER_TABLE + 2*userTableEntry + 1] = -1;
+
+    [returnAdd] = 0;
+endif;
+
+
+if(sysNum == INT_SETPWD)then
+    
+    if([SYSTEM_STATUS_TABLE + 1] != 2)then
+        [returnAdd] = -1;
+        goto exit;
+    endif;
+
+    alias passWord R4;
+    passWord = [[PTBR + 2*(userSP - 3)/512]*512 + (userSP - 3)%512];
+
+    alias userTableEntry R5;
+    userTableEntry = 0;
+    while(userTableEntry < MAX_USER_NUM && [USER_TABLE + 2*userTableEntry] != userName)do
+        userTableEntry = userTableEntry + 1;
+    endwhile;
+
+    if(userTableEntry == MAX_USER_NUM)then
+        [returnAdd] = -2;
+        goto exit;
+    endif;
+
+    if([SYSTEM_STATUS_TABLE] != userTableEntry && [SYSTEM_STATUS_TABLE] != ROOT)then
+        if(userTableEntry != 1)then
+            [returnAdd] = -1;
+            goto exit;
+        endif;
+    endif;
+
+    encrypt passWord;
+
+    [USER_TABLE + 2*userTableEntry + 1] = passWord;
+
+    [returnAdd] = 0;
+endif;
+
+if(sysNum == INT_GETUID)then
+
+    alias userTableEntry R4;
+    userTableEntry = 0;
+    while(userTableEntry < MAX_USER_NUM)do
+        if([USER_TABLE + 2*userTableEntry] == userName)then
+            [returnAdd] = userTableEntry;
+            goto exit;
+        endif;
+        userTableEntry = userTableEntry + 1;
+    endwhile;
+
+    [returnAdd] = -1;
+endif;
+
+if(sysNum == INT_GETUNAME)then
+    alias userId R4;
+    userId = [[PTBR + 2*(userSP - 4)/512]*512 + (userSP - 4)%512];
+
+    if(userId < 0 || userId > 15 || [USER_TABLE + 2*userId] == -1)then
+        [returnAdd] = -1;
+        goto exit;
+    endif;
+
+    [returnAdd] = [USER_TABLE + 2*userId];
+endif;
+
+exit: 
+	SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+	[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;

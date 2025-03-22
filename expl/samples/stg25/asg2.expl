@@ -1,38 +1,46 @@
-decl
-    int i, semid, pid, data, temp, filedis, a;
-    string filename;
-enddecl
+int main(){
+    decl
+        int temp, fileDesc, a, i, permission;
+        str word, fileName;
+    enddecl
+    begin
+        fileName = "a1.dat";
+        fileDesc = exposcall("Open", fileName);
+        if(fileDesc == -1) then
+            temp = exposcall("Write", -2, "File not found");
+        else
+            if(fileDesc == -2) then
+                temp = exposcall("Write", -2, "System max file opened");
+            else
+                if(fileDesc == -3) then
+                    temp = exposcall("Write", -2, "Proc max file opened");
+                endif;
+            endif;
+        endif;
 
-int main()
-{
-begin
-    temp = exposcall("Read",-1,filename);
-    filedis = exposcall("Open", "numbers.dat");
-    semid = exposcall("Semget");
+        if(fileDesc >= 0) then
+            temp = exposcall("Seek", fileDesc, 1100);
+            i = 2000;
+            while (i <= 2513) do
+                temp = exposcall("Write", fileDesc, i);
+                i = i + 1;
+            endwhile;
+            while(a != -2) do
+                a = exposcall("Seek", fileDesc, -1);
+                if(a == -2) then
+                    break;
+                endif;
+                temp = exposcall("Read", fileDesc, word);
+                if(temp == -2) then
+                    temp = exposcall("Write", -2, "EOF");
+                    break;
+                endif;
+                temp = exposcall("Write", -2, word);
+                a = exposcall("Seek", fileDesc, -1);
+            endwhile;
+        endif;
+        temp = exposcall("Close", fileDesc);
 
-    pid = exposcall("Fork");
-    a = 0;
-    data = -1;
-    if(pid > 0) then
-        while(a != -2)  do
-            temp = exposcall("SemLock", semid);
-            a = exposcall("Read",filedis,data);
-            temp = exposcall("Write",-2,data);
-            temp = exposcall("SemUnLock", semid);
-        endwhile;
-        
-        temp = exposcall("Semrelease", semid);
-    else
-        while(a != -2)  do
-            temp = exposcall("SemLock", semid);
-            a = exposcall("Read",filedis,data);
-            temp = exposcall("Write",-2,data);
-            temp = exposcall("SemUnLock", semid);
-        endwhile;
-
-        temp = exposcall("Semrelease", semid);
-    endif;
-    
-    return 0;
-end
+        return 0;
+    end
 }

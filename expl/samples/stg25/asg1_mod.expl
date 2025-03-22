@@ -28,10 +28,10 @@ int main(){
 
         if(fileDesc >= 0) then
 
-            i = 1;
+            i = 2;
             while(i <= 1100) do
                 temp = exposcall("Write", fileDesc, i);
-                i = i + 1;
+                i = i + 2;
             endwhile;
 	    a=1;
 

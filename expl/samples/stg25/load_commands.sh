@@ -16,8 +16,14 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg25/delete.expl
 ./expl  $HOME/myexpos/expl/samples/stg25/asg1.expl
 ./expl  $HOME/myexpos/expl/samples/stg25/asg2.expl
+./expl  $HOME/myexpos/expl/samples/stg25/asg3.expl
+./expl  $HOME/myexpos/expl/samples/stg25/asg4.expl
+./expl  $HOME/myexpos/expl/samples/stg25/asg1_mod.expl
 
 ./expl  $HOME/myexpos/expl/samples/stg25/ls.expl
+./expl  $HOME/myexpos/expl/samples/stg25/rm.expl
+./expl  $HOME/myexpos/expl/samples/stg25/cp.expl
+./expl  $HOME/myexpos/expl/samples/stg25/cat.expl
 
 
 cd $HOME/myexpos/spl/
@@ -96,9 +102,15 @@ load --exec  $HOME/myexpos/expl/samples/stg25/create.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/delete.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/asg1.xsm
 load --exec  $HOME/myexpos/expl/samples/stg25/asg2.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/asg3.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/asg4.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/asg1_mod.xsm
 
 
 load --exec  $HOME/myexpos/expl/samples/stg25/ls.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/rm.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/cp.xsm
+load --exec  $HOME/myexpos/expl/samples/stg25/cat.xsm
 
 load --data  $HOME/myexpos/expl/samples/stg25/numbers.dat
 

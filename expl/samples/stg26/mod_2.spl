@@ -1,0 +1,145 @@
+alias fnum R1;
+
+if(fnum==1)then
+alias pageno R2;
+
+[SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]+1;
+
+while ([SYSTEM_STATUS_TABLE+2]==0)do
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE+1]*16 +4 ]= WAIT_MEM;
+
+multipush(R1,R2);
+call MOD_5;
+multipop(R1,R2);
+
+
+endwhile;
+
+[SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]-1;
+[SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]-1;
+
+alias i R3;
+i =0;
+    while(i < 128) do
+        if([MEMORY_FREE_LIST + i] != 0) then
+            i = i + 1;
+        else
+	[MEMORY_FREE_LIST + i]=1;
+            R0 = i;
+            break;
+        endif;
+    endwhile; 
+return;
+
+endif;
+
+
+
+if (fnum==2)then
+alias pageno R2;
+
+[MEMORY_FREE_LIST+pageno]=[MEMORY_FREE_LIST+pageno]-1;
+
+if([MEMORY_FREE_LIST+pageno]==0)then
+[SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]+1;
+endif;
+
+alias pid R3 ;
+    pid = 0;
+    while(pid < 16) do
+        if([ PROCESS_TABLE + pid*16 + 4] == WAIT_MEM) then
+            [PROCESS_TABLE + pid*16 + 4] = READY ;
+        endif;
+       pid = pid + 1 ; 
+
+    endwhile;
+
+return;
+
+endif;
+
+
+if(fnum==5)then
+
+alias blockno R2;
+alias i R3;
+alias pageno R5;
+i=0;
+
+while(i<16)do
+
+alias j R4;
+j=4;
+
+while(j<8)do
+
+if([DISK_MAP_TABLE + 10*i +j]==blockno)then
+
+pageno=[PAGE_TABLE_BASE+ 20*i + 8 + 2*(j-4)];
+if(pageno!=-1)then
+
+R0=pageno;
+[MEMORY_FREE_LIST + pageno ]=[MEMORY_FREE_LIST + pageno ]+1;
+return;
+endif;
+
+endif;
+
+j=j+1;
+endwhile;
+
+i=i+1;
+endwhile;
+
+     multipush(R1, R2);
+
+    R1 = 1;
+    call MOD_2;
+
+    pageno = R0;
+
+    multipop(R1, R2);	    
+ multipush(R1, R2,R5);
+
+ R1 = 2;
+    R4 = blockno;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R3 = pageno;
+    call MOD_4;
+
+    multipop(R1, R2, R5);
+
+R0=pageno;
+return;
+
+endif;
+
+if(fnum==3)then //0
+
+alias i R0;
+i=DISK_FREE_AREA;
+
+while(i<DISK_SWAP_AREA)do
+
+if([DISK_FREE_LIST+i]==0)then
+[DISK_FREE_LIST +i]=1;
+return;   // since i is R0, we dont need to specify
+endif;
+
+i=i+1;
+endwhile;
+
+R0=-1;
+return;
+
+endif; //0
+
+if(fnum==4)then
+alias blockno R2;
+alias cpid R3;
+
+[DISK_FREE_LIST + blockno] = [DISK_FREE_LIST + blockno] - 1;
+return;
+
+endif;
