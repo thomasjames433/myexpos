@@ -15,6 +15,8 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg26/create.expl
 ./expl  $HOME/myexpos/expl/samples/stg26/delete.expl
 ./expl  $HOME/myexpos/expl/samples/stg26/shell.expl
+./expl  $HOME/myexpos/expl/samples/stg26/s25_a4.expl
+
 
 ./expl  $HOME/myexpos/expl/samples/stg26/ls.expl
 ./expl  $HOME/myexpos/expl/samples/stg26/rm.expl
@@ -103,6 +105,7 @@ load --exec  $HOME/myexpos/expl/samples/stg26/mergeseq.xsm
 load --exec  $HOME/myexpos/expl/samples/stg26/mergecon.xsm
 load --exec  $HOME/myexpos/expl/samples/stg26/create.xsm
 load --exec  $HOME/myexpos/expl/samples/stg26/delete.xsm
+load --exec  $HOME/myexpos/expl/samples/stg26/s25_a4.xsm
 
 
 load --exec  $HOME/myexpos/expl/samples/stg26/ls.xsm

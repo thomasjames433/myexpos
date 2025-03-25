@@ -28,7 +28,8 @@ endwhile;
 
 if(processTableEntry==8)then  //1
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -3;
-else
+goto exit;
+endif;
 
 multipush(R1,R2,R3,R10);
 R1=3;
@@ -38,16 +39,15 @@ multipop(R1,R2,R3,R10);
 
 if(R0<0 )then //2
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = R0;
+goto exit;
+endif;
 
-else
 [processTable + processTableEntry*2] = FILE;
 [processTable + processTableEntry*2 + 1] = R0;
-[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = R0;
-
-endif; //2
+[[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = processTableEntry;
 
 
-endif; //1
+
 endif; //0
 
 
@@ -58,8 +58,8 @@ fileDesc= [[PTBR + 2*(usersp - 4)/512] * 512 + (usersp - 4)%512];
 
 if(fileDesc<0 || fileDesc>7)then //4
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
-
-else
+goto exit;
+endif;
 
 alias pprt R3;
 pprt=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + RESOURCE_TABLE_OFFSET;
@@ -67,22 +67,20 @@ pprt=[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16 + 11]*512 + RESOURCE_TABLE_OF
 
 if([pprt + fileDesc*2] !=FILE)then //5
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = -1;
+goto exit;
+endif;
 
-else
 
-
-multipush(R0,R1,R2,R3);
+multipush(R0,R1,R2,R3,R10);
 R1 = 4;
 R2 =[pprt + fileDesc*2 +1 ]  ;
 call MOD_3;
-multipop(R0,R1,R2, R3);
+multipop(R0,R1,R2, R3,R10);
 
 [pprt + fileDesc*2]=-1;
 [[PTBR + 2*(usersp - 1)/512]*512 + (usersp - 1)%512] = 0;
  
 
-endif; //5
-endif; //4
 
 endif; //3
 
@@ -110,7 +108,7 @@ alias inodeIndex R5;
 oft = [pprt + 1];
 inodeIndex = [OPEN_FILE_TABLE + oft*4 + 0];
 
-
+//////
 multipush(R1, R2, R3, R4, R5, R10);
 R1 = ACQUIRE_INODE;
 R2 = [SYSTEM_STATUS_TABLE + 1];
@@ -174,6 +172,7 @@ endif; //1
 endif; //0
 
 
+exit:
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] *16 +9 ] = 0;
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] *16 + 13];
 ireturn;

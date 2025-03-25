@@ -1,143 +1,136 @@
-alias funNo R1;
-alias currPID R2;
-if(funNo == FREE_USER_AREA_PAGE)then
+alias functionNumber R1;
+alias currentPID R2;
 
-    alias userpage R6;
-    userpage = [PROCESS_TABLE + currPID*16 + 11];
-
-
-    alias resourceTable R7;
-    alias counter R8;
-    counter = 0;
-    resourceTable = userpage*512 + RESOURCE_TABLE_OFFSET;
-
-    while(counter < 16)do
-        if([resourceTable + counter] == SEMAPHORE)then
-            multipush(R1, R2, R6, R7, R8);
-
-            R1 = RELEASE_SEMAPHORE;
-            R3 = [resourceTable + counter + 1];
-            call MOD_0;
-            
-            multipop(R1, R2, R6, R7, R8);
+// get pcb entry
+if (functionNumber == 1) then
+    alias i R3;
+    i = 1;
+    while (i < 16) do
+        if ([PROCESS_TABLE + i * 16 + 4] == TERMINATED) then
+            break;
         endif;
-        counter = counter + 2;
+        i = i + 1;
     endwhile;
-    
-
-    multipush(R1, R2, R6, R7);
-
-    R2 = userpage;
-    R1 = RELEASE_PAGE;
-    call MOD_2;
-
-    multipop(R1, R2, R6, R7);
+    if (i == 16) then
+        R0 = -1;
+    else
+        [PROCESS_TABLE + i * 16 + 4] = ALLOCATED;
+        [PROCESS_TABLE + i * 16 + 1] = i;
+        [PROCESS_TABLE + i * 16 + 14] = PAGE_TABLE_BASE + (20 * i);
+        [PROCESS_TABLE + i * 16 + 15] = 10;
+        R0 = i;
+    endif;
     return;
-
 endif;
-if(funNo == EXIT_PROCESS) then
+
+// free user areaPage
+if (functionNumber == 2) then
+    alias userAreaPageNumber R3;
+    userAreaPageNumber = [PROCESS_TABLE + 16 * currentPID + 11];
+
+    alias i R4;
+    i = RESOURCE_TABLE_OFFSET;
+    while (i < 512) do
+        if ([[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i] == SEMAPHORE) then 
+            multipush(R0, R1, R2, R3, R4);
+            R1 = 7;
+            R2 = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i + 1];
+            R3 = [SYSTEM_STATUS_TABLE + 1];
+            call RESOURCE_MANAGER;
+            multipop(R0, R1, R2, R3, R4);
+        endif;
+        i = i + 2;
+    endwhile;
+
+    multipush(R1, R2, R3);
+    R1 = 2;
+    R2 = userAreaPageNumber;
+    call MOD_2;
+    multipop(R1, R2, R3);
+
+    return;
+endif;
+
+// exit process
+if (functionNumber == 3) then
     multipush(R1, R2);
 
-    //freeing the pagetable entries.
-    R1 = FREE_PAGE_TABLE;
+    // to free page table
+    R1 = 4;
+    R2 = currentPID;
     call MOD_1;
 
-    //freeing the userareapage of the program.
-    R1 = FREE_USER_AREA_PAGE;
+    // to free user area page
+    R1 = 2;
+    R2 = currentPID;
     call MOD_1;
 
     multipop(R1, R2);
 
-    if([PROCESS_TABLE + currPID*16 + 9] != 9)then
-        alias counter R7;
-        counter = 0;
-        while(counter < 16)do
-            if([PROCESS_TABLE + counter*16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + counter*16 + 5] == currPID)then
-                [PROCESS_TABLE + counter*16 + 4] = READY;
+    if ([PROCESS_TABLE + currentPID * 16 + 9] != 9) then // not invoked from exec
+        alias i R3;
+        i = 0;
+        while (i < 16) do
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + i * 16 + 5] == currentPID) then
+                [PROCESS_TABLE + i * 16 + 4] = READY;
             endif;
-            if([PROCESS_TABLE + counter*16 + 2] ==  currPID)then
-                [PROCESS_TABLE + counter*16 + 2] = -1;
+            if ([PROCESS_TABLE + i * 16 + 2] == currentPID) then
+                [PROCESS_TABLE + i * 16 + 2] = -1;
             endif;
-            counter = counter + 1;
+            i = i + 1;
         endwhile;
     endif;
 
-    [PROCESS_TABLE + currPID*16 + 4]=TERMINATED;
-
-
+    [PROCESS_TABLE + 16 * currentPID + 4] = TERMINATED;
     return;
 endif;
-if(funNo == FREE_PAGE_TABLE)then
 
+// free page table
+if (functionNumber == 4) then
     [PTBR + 0] = -1;
     [PTBR + 1] = "0000";
     [PTBR + 2] = -1;
     [PTBR + 3] = "0000";
 
-    alias page R7;
-    alias auxilary R8;
-    page = 4;
-    auxilary = 5;
+    alias i R3;
+    alias pageNumber R4;
 
-    while(page < 20)do
-         if([PAGE_TABLE_BASE + 20*currPID + page]!=-1)then
-            //releasing the page
-            multipush(R1, R2, R7, R8);
-            R1 = RELEASE_PAGE;
-            R2 = [PAGE_TABLE_BASE + 20*currPID + page];
+    i = 1;
+    while (i < (PTLR - 1)) do
+        pageNumber = [PTBR + 2 + 2 * i];
+        if (pageNumber != -1) then
+            multipush(R1, R2, R3, R4);
+
+            // to release page
+            R1 = 2;
+            R2 = pageNumber;
             call MOD_2;
-            multipop(R1, R2, R7, R8);
 
-            //invalidating the entries in page table
-            [PAGE_TABLE_BASE + 20*currPID + page] = -1;
-            [PAGE_TABLE_BASE + 20*currPID + auxilary] = "0000";
+            multipop(R1, R2, R3, R4);
+
+            [PTBR + 2 + 2 * i] = -1;
+            [PTBR + 3 + 2 * i] = "0000";
         endif;
-        page = page + 2;
-        auxilary = auxilary + 2;
+        i = i + 1;
     endwhile;
 
-    alias counter R6;
-    counter = 2;
-    while(counter<10)do
-        if([DISK_MAP_TABLE + currPID*10 + counter]!=-1 && (counter < 4 || counter > 7))then
-            multipush(R1, R2, R3, R4, R5, R6);
-            R1 = RELEASE_BLOCK;
-            R2 = [DISK_MAP_TABLE + currPID*10 + counter];
-            call MOD_2;
-            multipop(R1, R2, R3, R4, R5, R6);
+    i = 2;
+    while (i < 10) do
+        if ([DISK_MAP_TABLE + currentPID * 10 + i] != -1) then
+            if (i < 4 || i > 7) then
+                multipush(R1, R2, R3, R4);
+
+                R1 = 4;
+                R3 = currentPID;
+                R2 = [DISK_MAP_TABLE + currentPID * 10 + i];
+
+                call MOD_2;
+
+                multipop(R1, R2, R3, R4);
+            endif;
+            [DISK_MAP_TABLE + currentPID * 10 + i] = -1;
         endif;
-        counter = counter + 1;
+        i = i + 1;
     endwhile;
-
-    //invalidate all entries of disk map table.
-    counter = 0;
-    while(counter<10)do
-        [DISK_MAP_TABLE + counter] = -1;
-        counter = counter + 1;
-    endwhile;
-
-    return;
-endif;
-
-if(funNo == GET_PCB_ENTRY)then
-
-    alias pcbEntry R0;
-    pcbEntry = 0;
-
-    while(pcbEntry < 16 && [PROCESS_TABLE + 16*pcbEntry + 4] != TERMINATED)do
-        pcbEntry = pcbEntry + 1;
-    endwhile;
-    
-    //no valid PCB found
-    if(pcbEntry == 16)then
-        pcbEntry = -1;
-        return;
-    endif;
-
-    [PROCESS_TABLE + 16*pcbEntry + 4] = ALLOCATED;
-    [PROCESS_TABLE + 16*pcbEntry + 1] = pcbEntry;
-    [PROCESS_TABLE + 16*pcbEntry + 14] = PAGE_TABLE_BASE + 20*pcbEntry;
-    [PROCESS_TABLE + 16*pcbEntry + 15] = 10;
-
     return;
 endif;

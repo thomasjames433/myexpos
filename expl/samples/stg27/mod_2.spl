@@ -1,10 +1,6 @@
 alias fnum R1;
 
 if(fnum==1)then
-[SYSTEM_STATUS_TABLE +26]=[SYSTEM_STATUS_TABLE +26]+1;
-
-
-
 alias pageno R2;
 
 [SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]+1;
@@ -41,9 +37,6 @@ endif;
 
 
 if (fnum==2)then
-[SYSTEM_STATUS_TABLE +26]=[SYSTEM_STATUS_TABLE +26]-1;
-
-
 alias pageno R2;
 
 [MEMORY_FREE_LIST+pageno]=[MEMORY_FREE_LIST+pageno]-1;
@@ -122,11 +115,51 @@ return;
 
 endif;
 
+if(fnum==3)then //0
+
+alias i R0;
+i=DISK_FREE_AREA;
+
+while(i<DISK_SWAP_AREA)do
+
+if([DISK_FREE_LIST+i]==0)then
+[DISK_FREE_LIST +i]=1;
+return;   // since i is R0, we dont need to specify
+endif;
+
+i=i+1;
+endwhile;
+
+R0=-1;
+return;
+
+endif; //0
+
 if(fnum==4)then
 alias blockno R2;
 alias cpid R3;
 
 [DISK_FREE_LIST + blockno] = [DISK_FREE_LIST + blockno] - 1;
 return;
+
+
+if(fnum==6)then //0
+
+alias i R2;
+i=DISK_SWAP_AREA;
+
+while(i<DISK_SIZE)do
+if([DISK_FREE_LIST+ i]==0)then
+[DISK_FREE_LIST+i]=1;
+R0=i;
+return;
+endif;
+
+i=i+1;
+endwhile;
+
+R0=-1;
+return;
+endif; //0
 
 endif;

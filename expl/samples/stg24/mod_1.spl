@@ -49,6 +49,17 @@ endif;
 
 if(fnum==3)then
 
+multipush(R1, R2);
+
+    R1 = FREE_PAGE_TABLE;
+    call MOD_1;
+
+    //freeing the userareapage of the program.
+    R1 = FREE_USER_AREA_PAGE;
+    call MOD_1;
+
+multipop(R1, R2);
+
 
 if([PROCESS_TABLE + cpid*16 +9]!=9)then
 alias i R3;
@@ -56,38 +67,21 @@ i = 0;
 while (i < 16) do
 if ([PROCESS_TABLE + i * 16 + 4] == WAIT_PROCESS && [PROCESS_TABLE + i * 16 + 5]==cpid  ) then
 [PROCESS_TABLE + i * 16 + 4] = READY;
-[PROCESS_TABLE + i * 16 + 5] = -1;
-
 endif;
+
 if ([PROCESS_TABLE + i * 16 + 2] == cpid) then
 [PROCESS_TABLE + i * 16 + 2] = -1;
 endif;
 i = i + 1;
 endwhile;
-return;
 endif;
-
-
-multipush (R1,R2);
-R1=4;
-R2=cpid;
-
-
-call MOD_1;
-
-
-R1=2;
-R2=cpid;
-
-call MOD_1;
-multipop(R1,R2);
-
 
 
 [PROCESS_TABLE + cpid*16 +4]=TERMINATED;
 
 return;
 endif;
+
 
 
 if(fnum==4)then
