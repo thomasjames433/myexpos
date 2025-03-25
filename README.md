@@ -1,3 +1,4 @@
-Stg 22 error left,
+Stage 27 errors
 
-Stage 25 asg 4 not working, probably same reason
+Loading module 0 in module 6 makes the code work
+Loading mod 6 in mod 6 does not
