@@ -10,7 +10,7 @@ begin
     permission=1;
     temp=exposcall("Create",filename,permission);
     fd=exposcall("Open",filename);
-          
+
     if(fd>=0) then
         iter=1;
         while(iter<=1200) do
@@ -23,6 +23,7 @@ begin
         pid=exposcall("Fork");
         pid=exposcall("Fork");
         pid=exposcall("Fork");
+
         temp = exposcall("Exec","pgm1.xsm");
     else
         temp=exposcall("Write",-2, "OPEN FAIL");

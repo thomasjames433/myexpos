@@ -8,8 +8,6 @@ multipush(BP);
 [PROCESS_TABLE+ cpid*16+15]=PTLR;
 
 
-alias count R8;
-count= (cpid+1)%16;
 
 alias npid R9;
 
@@ -23,21 +21,27 @@ npid=15;
 endif;
 
 else
+npid= (cpid+1)%16;
 
-while(count !=cpid)do
+while(npid !=cpid)do
+if(npid==15)then
+npid=0;
+endif;
 
-if([PROCESS_TABLE + count*16 +4]==CREATED || [PROCESS_TABLE + count*16 +4]==READY) then
-
-npid=count;
+if(npid ==cpid)then
 break;
 endif;
 
-count=(count+1)%16;
+if( ([PROCESS_TABLE + npid*16 +4]==CREATED || [PROCESS_TABLE + npid*16 +4]==READY) && [PROCESS_TABLE + npid*16 +6]!=1 ) then
 
+break;
+endif;
+
+npid=(npid+1)%16;
 endwhile;
 
 //breakpoint;
-if(count ==cpid)then
+if(npid ==cpid)then
 npid=0;
 endif;
 

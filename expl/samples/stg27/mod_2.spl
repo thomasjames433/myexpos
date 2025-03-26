@@ -142,6 +142,9 @@ alias cpid R3;
 [DISK_FREE_LIST + blockno] = [DISK_FREE_LIST + blockno] - 1;
 return;
 
+endif;
+
+
 
 if(fnum==6)then //0
 
@@ -162,4 +165,3 @@ R0=-1;
 return;
 endif; //0
 
-endif;

@@ -22,6 +22,8 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg27/asg4.expl
 ./expl  $HOME/myexpos/expl/samples/stg27/asg5.expl
 ./expl  $HOME/myexpos/expl/samples/stg27/s25_a4.expl
+./expl  $HOME/myexpos/expl/samples/stg27/pgm1.expl
+./expl  $HOME/myexpos/expl/samples/stg27/pgm2.expl
 
 
 ./expl  $HOME/myexpos/expl/samples/stg27/ls.expl
@@ -38,13 +40,9 @@ cd $HOME/myexpos/spl/
 ./spl  $HOME/myexpos/expl/samples/stg27/int_10.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/int_7.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/int_6.spl
-./spl  $HOME/myexpos/expl/samples/stg27/mod_4.spl
-./spl  $HOME/myexpos/expl/samples/stg27/mod_0.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/console.spl
 
 ./spl  $HOME/myexpos/expl/samples/stg27/int_9.spl
-./spl  $HOME/myexpos/expl/samples/stg27/mod_1.spl
-./spl  $HOME/myexpos/expl/samples/stg27/mod_2.spl
 
 ./spl  $HOME/myexpos/expl/samples/stg27/disk.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/exhandler.spl
@@ -57,9 +55,13 @@ cd $HOME/myexpos/spl/
 ./spl  $HOME/myexpos/expl/samples/stg27/int_12.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/int_16.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/int_17.spl
-
-./spl  $HOME/myexpos/expl/samples/stg27/mod_3.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/int_5.spl
+
+./spl  $HOME/myexpos/expl/samples/stg27/mod_0.spl
+./spl  $HOME/myexpos/expl/samples/stg27/mod_1.spl
+./spl  $HOME/myexpos/expl/samples/stg27/mod_2.spl
+./spl  $HOME/myexpos/expl/samples/stg27/mod_3.spl
+./spl  $HOME/myexpos/expl/samples/stg27/mod_4.spl
 ./spl  $HOME/myexpos/expl/samples/stg27/mod_6.spl
 
 
@@ -96,10 +98,10 @@ load --idle $HOME/myexpos/expl/samples/stg27/idle.xsm
 load --init $HOME/myexpos/expl/samples/stg27/init.xsm
 load --shell $HOME/myexpos/expl/samples/stg27/shell.xsm
 
-load --module 4 $HOME/myexpos/expl/samples/stg27/mod_4.xsm
 load --module 1 $HOME/myexpos/expl/samples/stg27/mod_1.xsm
 load --module 2 $HOME/myexpos/expl/samples/stg27/mod_2.xsm
 load --module 3 $HOME/myexpos/expl/samples/stg27/mod_3.xsm
+load --module 4 $HOME/myexpos/expl/samples/stg27/mod_4.xsm
 load --module 6 $HOME/myexpos/expl/samples/stg27/mod_6.xsm
 
 load --exec  $HOME/myexpos/expl/samples/stg27/odd.xsm
@@ -117,8 +119,9 @@ load --exec  $HOME/myexpos/expl/samples/stg27/asg1.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/asg2.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/asg3.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/asg4.xsm
-load --exec  $HOME/myexpos/expl/samples/stg27/asg5.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/s25_a4.xsm
+load --exec  $HOME/myexpos/expl/samples/stg27/pgm1.xsm
+load --exec  $HOME/myexpos/expl/samples/stg27/pgm2.xsm
 
 
 load --exec  $HOME/myexpos/expl/samples/stg27/ls.xsm
