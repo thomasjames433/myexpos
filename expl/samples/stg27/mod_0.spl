@@ -1,216 +1,195 @@
-alias fnum R1;
-alias cpid R2;
+alias funNum R1;
+alias currPID R2;
 
+if(funNum==ACQUIRE_TERMINAL)then
 
-if(fnum==1)then //0
+    while([TERMINAL_STATUS_TABLE]==1)do
+        [PROCESS_TABLE + currPID*16 + 4]=WAIT_TERMINAL;
+        multipush(R1, R2);
+        call MOD_5;
+        multipop(R1, R2); 
+    endwhile;
 
-alias buffNum R3;
-while([BUFFER_TABLE + buffNum*4 + 2] != -1)do
+    [TERMINAL_STATUS_TABLE]=1;
+    [TERMINAL_STATUS_TABLE + 1]=currPID;
 
-[PROCESS_TABLE + cpid*16 + 4] = WAIT_BUFFER;
-[PROCESS_TABLE + cpid*16 + 5] = buffNum;
-
-multipush(R1, R2, R3);
-call MOD_5;
-multipop(R1, R2, R3);
-endwhile;
-
-[BUFFER_TABLE + buffNum*4 + 2] = cpid;
-
-return;
-
-endif; //0
-
-
-if(fnum==2)then //0
-
-alias buffNum R3;
-
-if(cpid != [BUFFER_TABLE + buffNum*4 + 2])then
-R0 = -1;
-return;
-endif;
-
-[BUFFER_TABLE + buffNum*4 + 2] = -1;
-
-alias counter R5;
-counter = 0;
-while(counter<16)do
-if([PROCESS_TABLE + counter*16 + 4] == WAIT_BUFFER && [PROCESS_TABLE + counter*16 + 5] == buffNum)then
-[PROCESS_TABLE + counter*16 + 4] = READY;
-endif;
-counter = counter + 1;
-endwhile;
-
-R0 = 0;
-return;
-endif; //0
-
-
-if (fnum==3)then
-
-while([DISK_STATUS_TABLE]==1)do
-
-
-[PROCESS_TABLE + cpid*16 +4]=WAIT_DISK;
-
-multipush(R1,R2,R3,R4,R5);
-call SCHEDULER;
-multipop(R1,R2,R3,R4,R5);
-
-endwhile;
-
-[DISK_STATUS_TABLE] = 1;
-[DISK_STATUS_TABLE + 4] = cpid;
-
-return;
-
+    return;
 endif;
 
 
-if(fnum==6)then
+if(funNum==RELEASE_TERMINAL)then 
 
-alias i R0;
-i=0;
+    if(currPID!=[TERMINAL_STATUS_TABLE+1])then   
+        R0 = -1;
+        return;
+    endif;
 
-while(i<MAX_SEM_COUNT)do
+    [TERMINAL_STATUS_TABLE]=0;
 
-if([SEMAPHORE_TABLE +i*4 +1]==0)then
-[SEMAPHORE_TABLE +i*4 +1]=1;
-[SEMAPHORE_TABLE +i*4]=-1;
-return;
+    alias count R6;
+    count = 0;
+    while(count<16)do   
+        if([PROCESS_TABLE + count*16 + 4]==WAIT_TERMINAL)then   
+            [PROCESS_TABLE + count*16 + 4]=READY;
+        endif;
+        count = count + 1;
+    endwhile;
+
+    R0 = 0;
+    return;
 endif;
 
 
-i=i+1;
-endwhile;
+if(funNum==ACQUIRE_DISK)then
 
-i=-1;
-return;
+    while([DISK_STATUS_TABLE]==1)do
+        [PROCESS_TABLE + currPID*16 + 4]=WAIT_DISK;
+        multipush(R1, R2);
+        call MOD_5;
+        multipop(R1, R2); 
+    endwhile;
 
+    [DISK_STATUS_TABLE]=1;
+    [DISK_STATUS_TABLE + 4]=currPID;
+
+    return;
 endif;
 
 
-if(fnum==4)then //0
+if(funNum == ACQUIRE_SEMAPHORE)then
+    alias index R0;
+    R0 = 0;
 
-alias inodeIndex R3;
-while([FILE_STATUS_TABLE + inodeIndex*4] != -1)do
+    while(index < MAX_SEM_COUNT)do                       
+        if([SEMAPHORE_TABLE + index*4 + 1] == 0)then
+            [SEMAPHORE_TABLE + index*4 + 1] = 1;
+            [SEMAPHORE_TABLE + index*4 + 0] = -1;
+            return;
+        endif;
+        index = index + 1;        
+    endwhile;
 
-[PROCESS_TABLE + cpid*16 + 4] = WAIT_FILE;
-[PROCESS_TABLE + cpid*16 + 5] = inodeIndex;
+    index = -1;                                          
 
-multipush(R1, R2, R3, R4);
-call MOD_5;
-multipop(R1, R2, R3, R4);
-
-endwhile;
-
-if([FILE_STATUS_TABLE + inodeIndex*4] == -1 && [FILE_STATUS_TABLE + inodeIndex*4 + 1] == -1 && [FILE_STATUS_TABLE + inodeIndex*4 + 2] == -1 && [FILE_STATUS_TABLE + inodeIndex*4 + 3] == -1)then
-R0 = -1;
-return;
+    return;
 endif;
 
-[FILE_STATUS_TABLE + inodeIndex*4] = cpid;
 
-R0 = 0;
-return;
+if(funNum == RELEASE_SEMAPHORE)then
 
-endif; //0 
+    alias semID R3;
 
-if(fnum==5)then // 1
+    if([SEMAPHORE_TABLE + semID*4] == currPID)then
+        [SEMAPHORE_TABLE + semID*4] = -1;
 
-alias inodeIndex R3;
+        alias counter R5;
+        counter = 0;
+        while(counter < 16)do
+            if([PROCESS_TABLE + counter*16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + counter*16 + 5] == semID)then
+                [PROCESS_TABLE + counter*16 + 4] = READY;
+                [PROCESS_TABLE + counter*16 + 5] = -1;
+            endif;
+            counter = counter + 1;
+        endwhile;
 
-if([FILE_STATUS_TABLE + inodeIndex*4] != cpid)then
-R0 = -1;
-return;
+        [SEMAPHORE_TABLE + semID*4 + 1] = [SEMAPHORE_TABLE + semID*4 + 1] - 1;
+
+    endif;
+    return;
 endif;
 
-[FILE_STATUS_TABLE + inodeIndex*4] = -1;
+if(funNum == ACQUIRE_INODE)then
 
-alias counter R5;
-counter = 0;
-while(counter < 16)do
-if([PROCESS_TABLE + counter*16 + 4] == WAIT_FILE && [PROCESS_TABLE + counter*16 + 5] == cpid)then
-[PROCESS_TABLE +counter*16 + 4] = READY;
-endif;
-counter = counter + 1;
-endwhile;
+    alias inodeIndex R3;
 
-R0 = 0;
-return;
+    while([FILE_STATUS_TABLE + inodeIndex*4] != -1)do
+        
+        [PROCESS_TABLE + currPID*16 + 4] = WAIT_FILE;
+        [PROCESS_TABLE + currPID*16 + 5] = inodeIndex;
 
-endif; // 1
+        multipush(R1, R2, R3, R4);
+        call MOD_5;
+        multipop(R1, R2, R3, R4);
 
-if(fnum==7)then
+    endwhile;
 
-alias semid R3;
+    if([INODE_TABLE + inodeIndex*16 + 1] == -1)then
+        R0 = -1;
+        return;
+    endif;
 
-if([SEMAPHORE_TABLE +semid*4]==cpid)then
-[SEMAPHORE_TABLE +semid*4]=-1;
-
-alias i R4;
-i=0;
-while(i<16)do
-
-if([PROCESS_TABLE + i*16 +4]==WAIT_SEMAPHORE && [PROCESS_TABLE + i*16 +5]==semid)then
-[PROCESS_TABLE + i*16 +4]=READY;
+    [FILE_STATUS_TABLE + inodeIndex*4] = currPID;
+    R0 = 0;
+    
+    return;
 endif;
 
-i=i+1;
-endwhile;
+if(funNum == RELEASE_INODE)then
+    alias inodeIndex R3;
 
-[SEMAPHORE_TABLE +semid*4+1]=[SEMAPHORE_TABLE +semid*4+1]-1;
+    if([FILE_STATUS_TABLE + inodeIndex*4] != currPID)then
+        R0 = -1;
+    else
 
-endif;
-return;
+        [FILE_STATUS_TABLE + inodeIndex*4] = -1;
 
-endif;
+        alias counter R5;
+        counter = 0;
+        while(counter < 16)do
+            if([PROCESS_TABLE + counter*16 + 4] == WAIT_FILE && [PROCESS_TABLE + counter*16 + 5] == inodeIndex)then
+                [PROCESS_TABLE + counter*16 + 4] = READY;
+                [PROCESS_TABLE + counter*16 + 5] = -1;
+            endif;
+            counter = counter + 1;
+        endwhile;
 
-if (fnum==8)then
+        R0 = 0;
+    endif;
 
-while([TERMINAL_STATUS_TABLE]==1)do
-[PROCESS_TABLE +cpid*16+4]=WAIT_TERMINAL;
-multipush(R0,R1,R2,R3);
-
-call MOD_5;
-multipop(R0,R1,R2,R3);
-
-endwhile;
-
-[TERMINAL_STATUS_TABLE]=1;
-[TERMINAL_STATUS_TABLE+1]=cpid;
-R0=0;
-return;
-
+    return;
 endif;
 
-if (fnum==9)then
+if(funNum == RELEASE_BUFFER)then
 
-if( [TERMINAL_STATUS_TABLE+1]!=cpid)then
-R0=-1;
-return;
+    alias buffNum R3;
 
-else
+    if(currPID != [BUFFER_TABLE + buffNum*4 + 2])then
+        R0 = -1;
+        return;
+    endif;
 
-[TERMINAL_STATUS_TABLE]=0;
-alias i R9;
-i=0;
+    [BUFFER_TABLE + buffNum*4 + 2] = -1;
 
-while(i < 16) do 
+    alias counter R5;
+    counter = 0;
+    while(counter<16)do
+        if([PROCESS_TABLE + counter*16 + 4] == WAIT_BUFFER && [PROCESS_TABLE + counter*16 + 5] == buffNum)then
+            [PROCESS_TABLE + counter*16 + 4] = READY;
+            [PROCESS_TABLE + counter*16 + 5] = -1;
+        endif;
+        counter = counter + 1;
+    endwhile;
 
-if([PROCESS_TABLE + i*16 + 4] == WAIT_TERMINAL) then
-[PROCESS_TABLE + i*16 + 4] = READY;
-endif;
-i=i+1;
-endwhile;
-
-R0=0;
-return;
-
-endif;
-
+    R0 = 0;
+    return;
 endif;
 
-R0=-1;
+
+if(funNum == ACQUIRE_BUFFER)then
+    alias buffNum R3;
+
+    while([BUFFER_TABLE + buffNum*4 + 2] != -1)do
+
+        [PROCESS_TABLE + currPID*16 + 4] = WAIT_BUFFER;
+        [PROCESS_TABLE + currPID*16 + 5] = buffNum;
+
+        multipush(R1, R2, R3);
+        call MOD_5;
+        multipop(R1, R2, R3);
+    endwhile;
+
+    [BUFFER_TABLE + buffNum*4 + 2] = currPID;    
+
+    return;
+endif;
 return;

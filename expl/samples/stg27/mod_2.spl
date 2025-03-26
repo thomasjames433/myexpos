@@ -1,6 +1,7 @@
 alias fnum R1;
 
 if(fnum==1)then
+
 alias pageno R2;
 
 [SYSTEM_STATUS_TABLE+3]=[SYSTEM_STATUS_TABLE+3]+1;
@@ -37,16 +38,18 @@ endif;
 
 
 if (fnum==2)then
+
 alias pageno R2;
 
 [MEMORY_FREE_LIST+pageno]=[MEMORY_FREE_LIST+pageno]-1;
 
-if([MEMORY_FREE_LIST+pageno]==0)then
+
+if ([MEMORY_FREE_LIST+pageno]==0)then
 [SYSTEM_STATUS_TABLE+2]=[SYSTEM_STATUS_TABLE+2]+1;
 endif;
 
 alias pid R3 ;
-    pid = 0;
+    pid = 1;
     while(pid < 16) do
         if([ PROCESS_TABLE + pid*16 + 4] == WAIT_MEM) then
             [PROCESS_TABLE + pid*16 + 4] = READY ;
