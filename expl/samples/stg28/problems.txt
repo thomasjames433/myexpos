@@ -1,2 +1,0 @@
-mod 2
-check mod 6
