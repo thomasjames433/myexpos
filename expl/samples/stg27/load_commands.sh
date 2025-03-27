@@ -30,6 +30,8 @@ cd $HOME/myexpos/expl/
 ./expl  $HOME/myexpos/expl/samples/stg27/rm.expl
 ./expl  $HOME/myexpos/expl/samples/stg27/cp.expl
 ./expl  $HOME/myexpos/expl/samples/stg27/cat.expl
+./expl  $HOME/myexpos/expl/samples/stg27/lu.expl
+./expl  $HOME/myexpos/expl/samples/stg27/ru.expl
 
 
 cd $HOME/myexpos/spl/
@@ -131,6 +133,8 @@ load --exec  $HOME/myexpos/expl/samples/stg27/ls.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/rm.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/cp.xsm
 load --exec  $HOME/myexpos/expl/samples/stg27/cat.xsm
+load --exec  $HOME/myexpos/expl/samples/stg27/lu.xsm
+load --exec  $HOME/myexpos/expl/samples/stg27/ru.xsm
 
 load --data  $HOME/myexpos/expl/samples/stg27/numbers.dat
 
