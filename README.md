@@ -8,3 +8,5 @@ All the codes work correctly, but there are errors in mod 0 and int 4 in stage 2
 LINKS
 
 xfs interface commands - https://exposnitc.github.io/support_tools-files/xfs-interface.html
+
+disk & memory organisation - https://exposnitc.github.io/os_implementation.html
